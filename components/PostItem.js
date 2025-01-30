@@ -1,32 +1,8 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Share,
-} from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 const PostItem = ({ item, handleLike, openComments }) => {
-  const [liked, setLiked] = useState(false);
-
-  const toggleLike = () => {
-    setLiked(!liked);
-    handleLike(item.id, liked);
-  };
-
-  const sharePost = async () => {
-    try {
-      await Share.share({
-        message: `${item.title}\n\n${item.body}`,
-      });
-    } catch (error) {
-      console.log("Error sharing post:", error);
-    }
-  };
-
   return (
     <View style={styles.postContainer}>
       {/* User Info */}
@@ -45,26 +21,25 @@ const PostItem = ({ item, handleLike, openComments }) => {
       {/* Post Actions */}
       <View style={styles.actionsContainer}>
         {/* Like Button */}
-        <TouchableOpacity style={styles.actionButton} onPress={toggleLike}>
-          <FontAwesome
-            name="thumbs-up"
-            size={20}
-            color={liked ? "blue" : "gray"}
-          />
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handleLike(item.id)}
+        >
+          <FontAwesome name="thumbs-up" size={20} color="blue" />
           <Text style={styles.actionText}>{item.reactions.likes} Likes</Text>
         </TouchableOpacity>
 
         {/* Comment Button */}
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => openComments(item)}
+          onPress={() => openComments(item.comments)}
         >
           <FontAwesome name="comment" size={20} color="green" />
           <Text style={styles.actionText}>{item.comments.length} Comments</Text>
         </TouchableOpacity>
 
-        {/* Share Button */}
-        <TouchableOpacity style={styles.actionButton} onPress={sharePost}>
+        {/* Share Button (Placeholder) */}
+        <TouchableOpacity style={styles.actionButton}>
           <FontAwesome name="share" size={20} color="purple" />
           <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>
