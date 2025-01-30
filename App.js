@@ -1,13 +1,9 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import RootNavigator from "./navigation/RootNavigator";
 
 export default function App() {
-  return (
-    <View>
-      <StatusBar style="auto" />
-      <Text>Hello World</Text>
-    </View>
-  );
+  return <RootNavigator />;
 }
 
 const styles = StyleSheet.create({});
