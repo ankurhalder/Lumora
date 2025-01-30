@@ -6,13 +6,10 @@ import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { Ionicons } from "react-native-vector-icons";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
 function TopTabNavigator() {
-  const navigation = useNavigation();
-
   return (
     <>
       <View style={styles.header}>
@@ -36,7 +33,17 @@ function TopTabNavigator() {
             fontWeight: "bold",
           },
           tabBarStyle: {
-            backgroundColor: "#fff",
+            backgroundColor: "white",
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: "#007bff",
+            height: 3,
+            borderRadius: 2,
+          },
+          tabBarItemStyle: {
+            transition: "all 0.3s ease",
           },
         }}
       >
@@ -99,7 +106,7 @@ function TopTabNavigator() {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     paddingVertical: 10,
     flexDirection: "row",
     justifyContent: "space-between",
