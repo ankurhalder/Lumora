@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, ActivityIndicator, StyleSheet } from "react-native";
+import {
+  View,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Alert,
+  Share,
+} from "react-native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
@@ -32,13 +39,16 @@ const HomeScreen = () => {
     }
   };
 
-  const handleLike = (postId) => {
+  const handleLike = (postId, liked) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
         post.id === postId
           ? {
               ...post,
-              reactions: { ...post.reactions, likes: post.reactions.likes + 1 },
+              reactions: {
+                ...post.reactions,
+                likes: post.reactions.likes + (liked ? 1 : -1),
+              },
             }
           : post
       )
@@ -50,6 +60,13 @@ const HomeScreen = () => {
     setModalVisible(true);
   };
 
+  const handleShare = (postId) => {
+    const postUrl = `https://www.ankurhalder.in/${postId}`;
+
+    Share.share({
+      message: `Check out this post: ${postUrl}`,
+    }).catch((error) => Alert.alert(error.message));
+  };
   return (
     <View style={styles.container}>
       {loading ? (
@@ -63,6 +80,7 @@ const HomeScreen = () => {
               item={item}
               handleLike={handleLike}
               openComments={openComments}
+              handleShare={handleShare}
             />
           )}
           onEndReached={loadMorePosts}
@@ -75,7 +93,6 @@ const HomeScreen = () => {
         />
       )}
 
-      {/* Comments Modal */}
       <CommentModal
         visible={modalVisible}
         comments={selectedComments}
