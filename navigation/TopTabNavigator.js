@@ -1,7 +1,7 @@
 import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import HomeScreen from "../screens/HomeScreen";
-import ProfileStackNavigator from "../screens/ProfileStackNavigator";
+import ProfileStackNavigator from "./ProfileStackNavigator";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { Ionicons } from "react-native-vector-icons";
@@ -59,7 +59,7 @@ function TopTabNavigator() {
         />
         <Tab.Screen
           name="Profile"
-          component={ProfileStackNavigator} // Use the stack navigator here
+          component={ProfileStackNavigator} // Use ProfileStackNavigator here
           options={{
             tabBarIcon: ({ focused, color, size }) => (
               <Ionicons name="person-outline" size={size} color={color} />

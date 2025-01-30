@@ -13,6 +13,7 @@ import ProfileDetailScreen from "./PostDetailsScreen";
 
 const LIMIT = 10;
 const Stack = createStackNavigator();
+
 const ProfileScreen = ({ navigation }) => {
   const [profiles, setProfiles] = useState([]);
   const [allProfiles, setAllProfiles] = useState([]);
