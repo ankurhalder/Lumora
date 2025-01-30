@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,11 +11,30 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment";
+import { fetchUserById } from "../functions/fetchUserById";
 
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
+  const [commentsWithUserData, setCommentsWithUserData] = useState([]);
+
+  useEffect(() => {
+    const fetchUserImages = async () => {
+      const updatedComments = await Promise.all(
+        comments.map(async (comment) => {
+          const user = await fetchUserById(comment.userId);
+          return { ...comment, user };
+        })
+      );
+      setCommentsWithUserData(updatedComments);
+    };
+
+    if (visible) {
+      fetchUserImages();
+    }
+  }, [visible, comments]);
+
   const handleNewComment = (commentText) => {
-    alert(`Comment: "${commentText}" added to Post `);
+    alert(`Comment: "${commentText}" added to Post`);
   };
 
   const handlePostComment = () => {
