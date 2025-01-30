@@ -9,8 +9,8 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons"; // For likes
-import moment from "moment"; // To handle time formatting
+import { FontAwesome } from "@expo/vector-icons";
+import moment from "moment";
 
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
@@ -20,8 +20,8 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
   const handlePostComment = () => {
     if (newComment.trim()) {
-      handleNewComment(postId, newComment); // A function to handle posting a new comment
-      setNewComment(""); // Clear input field after posting
+      handleNewComment(postId, newComment);
+      setNewComment("");
     }
   };
 
@@ -57,14 +57,12 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       <View style={styles.modalContainer}>
         <Text style={styles.modalTitle}>Comments</Text>
 
-        {/* Display the comments */}
         <FlatList
           data={comments}
           keyExtractor={(comment) => comment.id.toString()}
           renderItem={renderComment}
         />
 
-        {/* Add new comment */}
         <View style={styles.addCommentContainer}>
           <TextInput
             style={styles.commentInput}
@@ -81,7 +79,6 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Close Modal */}
         <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
           <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
