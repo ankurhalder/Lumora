@@ -15,7 +15,8 @@ import CommentModal from "../components/CommentModal";
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
@@ -32,11 +33,15 @@ const HomeScreen = () => {
   }, []);
 
   const loadMorePosts = () => {
-    if (posts.length < allPosts.length) {
+    if (loadingMore || posts.length >= allPosts.length) return;
+
+    setLoadingMore(true);
+    setTimeout(() => {
       const nextPosts = allPosts.slice(0, posts.length + limit);
       setPosts(nextPosts);
       setPage(page + 1);
-    }
+      setLoadingMore(false);
+    }, 1000);
   };
 
   const handleLike = (postId, liked) => {
@@ -72,6 +77,7 @@ const HomeScreen = () => {
       message: `Check out this post: ${postUrl}`,
     }).catch((error) => Alert.alert(error.message));
   };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -91,9 +97,7 @@ const HomeScreen = () => {
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            posts.length < allPosts.length ? (
-              <ActivityIndicator size="small" />
-            ) : null
+            loadingMore ? <ActivityIndicator size="small" /> : null
           }
         />
       )}
