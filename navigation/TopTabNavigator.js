@@ -1,7 +1,7 @@
 import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import HomeScreen from "../screens/HomeScreen";
-import ProfileStackNavigator from "../screens/ProfileStackNavigator"; // Import the ProfileStackNavigator
+import ProfileStackNavigator from "../screens/ProfileStackNavigator";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { Ionicons } from "react-native-vector-icons";

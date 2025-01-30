@@ -2,10 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 const ProfileDetailScreen = ({ route }) => {
-  const { userId } = route.params; // Receive userId from the navigation
-
-  // Here you can fetch the user details based on userId
-  // For now, let's simulate data
+  const { userId } = route.params;
 
   const userDetails = {
     id: userId,
