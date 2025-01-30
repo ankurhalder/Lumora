@@ -42,7 +42,9 @@ const HomeScreen = () => {
   const handleLike = (postId, liked) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
-        post.id === postId
+        post.id === postId &&
+        post.reactions.likes !==
+          (liked ? post.reactions.likes + 1 : post.reactions.likes)
           ? {
               ...post,
               reactions: {

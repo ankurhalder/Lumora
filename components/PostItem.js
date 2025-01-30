@@ -1,29 +1,21 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 const PostItem = ({ item, handleLike, openComments, handleShare }) => {
-  const [liked, setLiked] = useState(false); // Tracks like status
+  const [liked, setLiked] = useState(false);
 
   const onLikePress = () => {
-    setLiked(!liked); // Toggle the like status
-    handleLike(item.id, !liked); // Pass the updated like status to parent
+    setLiked(!liked);
+    handleLike(item.id, !liked);
   };
 
   const onSharePress = () => {
-    handleShare(item.id); // Handle share action
+    handleShare(item.id);
   };
 
   return (
     <View style={styles.postContainer}>
-      {/* User Info */}
       <View style={styles.userInfo}>
         <Image
           source={{ uri: item.user.image || "https://via.placeholder.com/50" }}
@@ -32,25 +24,21 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
         <Text style={styles.username}>{item.user.username}</Text>
       </View>
 
-      {/* Post Content */}
       <Text style={styles.postTitle}>{item.title}</Text>
       <Text style={styles.postBody}>{item.body}</Text>
 
-      {/* Post Actions */}
       <View style={styles.actionsContainer}>
-        {/* Like Button */}
         <TouchableOpacity style={styles.actionButton} onPress={onLikePress}>
           <FontAwesome
             name="thumbs-up"
             size={20}
-            color={liked ? "blue" : "gray"} // Blue if liked, gray if not liked
+            color={liked ? "blue" : "gray"}
           />
           <Text style={styles.actionText}>
             {item.reactions.likes + (liked ? 1 : 0)} Likes
           </Text>
         </TouchableOpacity>
 
-        {/* Comment Button */}
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => openComments(item.comments)}
@@ -59,7 +47,6 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
           <Text style={styles.actionText}>{item.comments.length} Comments</Text>
         </TouchableOpacity>
 
-        {/* Share Button */}
         <TouchableOpacity style={styles.actionButton} onPress={onSharePress}>
           <FontAwesome name="share" size={20} color="purple" />
           <Text style={styles.actionText}>Share</Text>

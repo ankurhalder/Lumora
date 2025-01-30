@@ -14,7 +14,6 @@ const fetchAllData = async (setLoading) => {
   let skipComments = 0;
 
   try {
-    // Fetch all users
     while (hasMoreUsers) {
       const userRes = await axios.get(
         `https://dummyjson.com/users?limit=${limit}&skip=${skipUsers}`
@@ -24,7 +23,6 @@ const fetchAllData = async (setLoading) => {
       hasMoreUsers = userRes.data.users.length === limit;
     }
 
-    // Fetch all posts
     while (hasMorePosts) {
       const postRes = await axios.get(
         `https://dummyjson.com/posts?limit=${limit}&skip=${skipPosts}`
@@ -34,7 +32,6 @@ const fetchAllData = async (setLoading) => {
       hasMorePosts = postRes.data.posts.length === limit;
     }
 
-    // Fetch all comments
     while (hasMoreComments) {
       const commentRes = await axios.get(
         `https://dummyjson.com/comments?limit=${limit}&skip=${skipComments}`
