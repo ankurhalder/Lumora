@@ -5,79 +5,116 @@ import ProfileScreen from "../screens/ProfileScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { Ionicons } from "react-native-vector-icons";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
 function TopTabNavigator() {
+  const navigation = useNavigation();
+
   return (
-    <Tab.Navigator
-      initialRouteName="Home"
-      screenOptions={{
-        tabBarActiveTintColor: "#007bff",
-        tabBarInactiveTintColor: "gray",
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "bold",
-        },
-        tabBarStyle: {
-          backgroundColor: "#fff",
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? "home" : "home-outline"}
-              size={size}
-              color={color}
-            />
-          ),
+    <>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Lumora</Text>
+        <View style={styles.iconsContainer}>
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="add-outline" size={28} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="search-outline" size={28} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Tab.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          tabBarActiveTintColor: "#007bff",
+          tabBarInactiveTintColor: "gray",
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: "bold",
+          },
+          tabBarStyle: {
+            backgroundColor: "#fff",
+          },
         }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? "person" : "person-outline"}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? "notifications" : "notifications-outline"}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? "settings" : "settings-outline"}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <Ionicons
+                name={focused ? "home" : "home-outline"}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <Ionicons
+                name={focused ? "person" : "person-outline"}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Notifications"
+          component={NotificationsScreen}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <Ionicons
+                name={focused ? "notifications" : "notifications-outline"}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarIcon: ({ focused, color, size }) => (
+              <Ionicons
+                name={focused ? "settings" : "settings-outline"}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+  headerText: {
+    color: "#007bff",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  iconsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+});
 
 export default TopTabNavigator;
