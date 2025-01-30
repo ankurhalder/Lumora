@@ -34,8 +34,8 @@ function TopTabNavigator() {
           },
           tabBarStyle: {
             backgroundColor: "white",
-            elevation: 0,
-            shadowOpacity: 0,
+            elevation: 10,
+            shadowOpacity: 10,
           },
           tabBarIndicatorStyle: {
             backgroundColor: "#007bff",
