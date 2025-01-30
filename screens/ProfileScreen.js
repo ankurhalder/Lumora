@@ -7,11 +7,13 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
 import fetchAllData from "../functions/fetchAllData";
+import ProfileDetailScreen from "./PostDetailsScreen";
 
 const LIMIT = 10;
-
-const ProfileScreen = () => {
+const Stack = createStackNavigator();
+const ProfileScreen = ({ navigation }) => {
   const [profiles, setProfiles] = useState([]);
   const [allProfiles, setAllProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,12 @@ const ProfileScreen = () => {
   };
 
   const renderProfileItem = ({ item }) => (
-    <View style={styles.profileCard}>
+    <View
+      style={styles.profileCard}
+      onTouchEnd={() =>
+        navigation.navigate("ProfileDetail", { userId: item.id })
+      }
+    >
       <Image
         source={{
           uri: item.image || "https://www.ankurhalder.in/apple-icon.png",
@@ -77,6 +84,15 @@ const ProfileScreen = () => {
     </View>
   );
 };
+
+const ProfileStackNavigator = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Profile" component={ProfileScreen} />
+    <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
+  </Stack.Navigator>
+);
+
+export default ProfileStackNavigator;
 
 const styles = StyleSheet.create({
   container: {
@@ -115,5 +131,3 @@ const styles = StyleSheet.create({
     color: "gray",
   },
 });
-
-export default ProfileScreen;
