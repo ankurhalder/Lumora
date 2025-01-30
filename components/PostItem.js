@@ -7,7 +7,7 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
 
   const onLikePress = () => {
     setLiked(!liked);
-    handleLike(item.id, !liked);
+    handleLike(item.id, !liked - 1);
   };
 
   const onSharePress = () => {
