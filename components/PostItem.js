@@ -18,7 +18,9 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
     <View style={styles.postContainer}>
       <View style={styles.userInfo}>
         <Image
-          source={{ uri: item.user.image || "https://via.placeholder.com/50" }}
+          source={{
+            uri: item.user.image || "https://www.ankurhalder.in/apple-icon.png",
+          }}
           style={styles.userImage}
         />
         <Text style={styles.username}>{item.user.username}</Text>
