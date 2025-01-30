@@ -33,13 +33,15 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   }, [visible, comments]);
 
   const handleNewComment = (commentText) => {
-    alert(`Comment: "${commentText}" added to Post`);
+    alert(` Comment: "${commentText}" added to Post`);
   };
 
   const handlePostComment = () => {
     if (newComment.trim()) {
-      handleNewComment(postId, newComment);
+      handleNewComment(newComment);
       setNewComment("");
+    } else {
+      alert("Please enter a comment.");
     }
   };
 
