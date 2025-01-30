@@ -21,13 +21,12 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
     const fetchUserImages = async () => {
       const updatedComments = await Promise.all(
         comments.map(async (comment) => {
-          const user = await fetchUserById(comment.userId);
-          return { ...comment, user };
+          const user = await fetchUserById(comment.user.id);
+          return { ...comment, user }; // Attach user data to comment
         })
       );
       setCommentsWithUserData(updatedComments);
     };
-
     if (visible) {
       fetchUserImages();
     }
@@ -79,7 +78,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
         <Text style={styles.modalTitle}>Comments</Text>
 
         <FlatList
-          data={comments}
+          data={commentsWithUserData}
           keyExtractor={(comment) => comment.id.toString()}
           renderItem={renderComment}
         />
