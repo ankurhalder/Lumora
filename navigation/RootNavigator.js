@@ -1,6 +1,6 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import TopTabNavigator from "./TopTabNavigator"; // Use the new TopTabNavigator
+import TopTabNavigator from "./TopTabNavigator";
 
 function RootNavigator() {
   return (
