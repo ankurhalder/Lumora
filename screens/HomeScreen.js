@@ -6,7 +6,10 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 
@@ -15,6 +18,8 @@ const HomeScreen = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedComments, setSelectedComments] = useState([]);
   const limit = 10;
 
   useEffect(() => {
@@ -35,6 +40,24 @@ const HomeScreen = () => {
     }
   };
 
+  const handleLike = (postId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              reactions: { ...post.reactions, likes: post.reactions.likes + 1 },
+            }
+          : post
+      )
+    );
+  };
+
+  const openComments = (comments) => {
+    setSelectedComments(comments);
+    setModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -45,6 +68,7 @@ const HomeScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.postContainer}>
+              {/* User Info */}
               <View style={styles.userInfo}>
                 <Image
                   source={{
@@ -54,11 +78,41 @@ const HomeScreen = () => {
                 />
                 <Text style={styles.username}>{item.user.username}</Text>
               </View>
+
+              {/* Post Content */}
               <Text style={styles.postTitle}>{item.title}</Text>
               <Text style={styles.postBody}>{item.body}</Text>
-              <Text style={styles.commentText}>
-                {item.comments.length} comments
-              </Text>
+
+              {/* Post Actions */}
+              <View style={styles.actionsContainer}>
+                {/* Like Button */}
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleLike(item.id)}
+                >
+                  <FontAwesome name="thumbs-up" size={20} color="blue" />
+                  <Text style={styles.actionText}>
+                    {item.reactions.likes} Likes
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Comment Button */}
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => openComments(item.comments)}
+                >
+                  <FontAwesome name="comment" size={20} color="green" />
+                  <Text style={styles.actionText}>
+                    {item.comments.length} Comments
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Share Button (Placeholder) */}
+                <TouchableOpacity style={styles.actionButton}>
+                  <FontAwesome name="share" size={20} color="purple" />
+                  <Text style={styles.actionText}>Share</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
           onEndReached={loadMorePosts}
@@ -70,6 +124,31 @@ const HomeScreen = () => {
           }
         />
       )}
+
+      {/* Comments Modal */}
+      <Modal visible={modalVisible} animationType="slide" transparent={false}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Comments</Text>
+          <FlatList
+            data={selectedComments}
+            keyExtractor={(comment) => comment.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.commentItem}>
+                <Text style={styles.commentText}>
+                  <Text style={styles.commentUser}>{item.user.fullName}: </Text>
+                  {item.body}
+                </Text>
+              </View>
+            )}
+          />
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -114,10 +193,51 @@ const styles = StyleSheet.create({
     color: "gray",
     marginTop: 5,
   },
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionText: {
+    marginLeft: 5,
+    fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#f9f9f9",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  commentItem: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+  },
   commentText: {
-    fontSize: 12,
-    color: "blue",
-    marginTop: 5,
+    fontSize: 14,
+  },
+  commentUser: {
+    fontWeight: "bold",
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "red",
+    alignItems: "center",
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 
