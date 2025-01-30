@@ -52,12 +52,9 @@ function TopTabNavigator() {
           component={HomeScreen}
           options={{
             tabBarIcon: ({ focused, color, size }) => (
-              <Ionicons
-                name={focused ? "home" : "home-outline"}
-                size={size}
-                color={color}
-              />
+              <Ionicons name="home-outline" size={size} color={color} />
             ),
+            tabBarLabel: () => null,
           }}
         />
         <Tab.Screen
@@ -65,12 +62,9 @@ function TopTabNavigator() {
           component={ProfileScreen}
           options={{
             tabBarIcon: ({ focused, color, size }) => (
-              <Ionicons
-                name={focused ? "person" : "person-outline"}
-                size={size}
-                color={color}
-              />
+              <Ionicons name="person-outline" size={size} color={color} />
             ),
+            tabBarLabel: () => null,
           }}
         />
         <Tab.Screen
@@ -79,11 +73,12 @@ function TopTabNavigator() {
           options={{
             tabBarIcon: ({ focused, color, size }) => (
               <Ionicons
-                name={focused ? "notifications" : "notifications-outline"}
+                name="notifications-outline"
                 size={size}
                 color={color}
               />
             ),
+            tabBarLabel: () => null,
           }}
         />
         <Tab.Screen
@@ -91,12 +86,9 @@ function TopTabNavigator() {
           component={SettingsScreen}
           options={{
             tabBarIcon: ({ focused, color, size }) => (
-              <Ionicons
-                name={focused ? "settings" : "settings-outline"}
-                size={size}
-                color={color}
-              />
+              <Ionicons name="settings-outline" size={size} color={color} />
             ),
+            tabBarLabel: () => null,
           }}
         />
       </Tab.Navigator>
@@ -107,7 +99,8 @@ function TopTabNavigator() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: "white",
-    paddingVertical: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
