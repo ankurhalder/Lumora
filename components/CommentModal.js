@@ -22,7 +22,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       const updatedComments = await Promise.all(
         comments.map(async (comment) => {
           const user = await fetchUserById(comment.user.id);
-          return { ...comment, user }; // Attach user data to comment
+          return { ...comment, user };
         })
       );
       setCommentsWithUserData(updatedComments);
@@ -52,7 +52,12 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
           }}
           style={styles.userImage}
         />
-        <Text style={styles.commentUser}>{item.user.fullName}</Text>
+        <Text style={styles.commentUser}>
+          {item?.user?.firstName +
+            " " +
+            (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
+            item?.user?.lastName || "Unknown"}
+        </Text>
         <Text style={styles.commentTime}>
           {moment(item.createdAt).fromNow()}
         </Text>

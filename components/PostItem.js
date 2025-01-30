@@ -23,7 +23,13 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
           }}
           style={styles.userImage}
         />
-        <Text style={styles.username}>{item.user.username}</Text>
+        <Text style={styles.username}>
+          {" "}
+          {item?.user?.firstName +
+            " " +
+            (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
+            item?.user?.lastName || "Unknown"}
+        </Text>
       </View>
 
       <Text style={styles.postTitle}>{item.title}</Text>
