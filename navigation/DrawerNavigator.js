@@ -15,6 +15,8 @@ function DrawerNavigator() {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
+      drawerPosition="right" // This ensures the drawer is on the right side
+      drawerType="front" // Optional: ensures it slides over content, not behind it
       drawerContent={(props) => (
         <CustomDrawerContent {...props} statusBarHeight={statusBarHeight} />
       )}
