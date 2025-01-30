@@ -13,8 +13,8 @@ function TopTabNavigator() {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        tabBarActiveTintColor: "#007bff", // Active tab color (blue)
-        tabBarInactiveTintColor: "gray", // Inactive tab color (gray)
+        tabBarActiveTintColor: "#007bff",
+        tabBarInactiveTintColor: "gray",
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "bold",
