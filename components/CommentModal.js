@@ -56,7 +56,6 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
     }
   };
   const handleUserPress = (user) => {
-    console.log("User pressed:", user);
     if (!user || !user.id) {
       console.error("Invalid user data:", user);
       return;
