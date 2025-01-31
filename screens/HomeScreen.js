@@ -78,12 +78,8 @@ const HomeScreen = () => {
       message: `Check out this post: ${postUrl}`,
     }).catch((error) => Alert.alert(error.message));
   };
-  const handleImagePress = (profileId, profileName, profileImage) => {
-    navigation.navigate("ProfileDetail", {
-      profileId,
-      profileName,
-      profileImage,
-    });
+  const handleImagePress = (userData) => {
+    navigation.navigate("ProfileDetail", { userData });
   };
 
   return (

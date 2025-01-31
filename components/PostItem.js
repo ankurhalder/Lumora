@@ -20,13 +20,7 @@ const PostItem = ({
     <View style={styles.postContainer}>
       <TouchableOpacity
         style={styles.userInfo}
-        onPress={() =>
-          handleImagePress(
-            item.user.id,
-            item.user.firstName + " " + item.user.lastName,
-            item.user.image
-          )
-        }
+        onPress={() => handleImagePress(item.user)}
       >
         <Image
           source={{
@@ -35,7 +29,6 @@ const PostItem = ({
           style={styles.userImage}
         />
         <Text style={styles.username}>
-          {" "}
           {item?.user?.firstName +
             " " +
             (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
