@@ -134,6 +134,7 @@ const RootNavigator = () => (
   <NavigationContainer ref={navigationRef}>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
