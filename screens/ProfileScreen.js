@@ -50,9 +50,7 @@ const ProfileScreen = ({ navigation }) => {
       style={styles.profileCard}
       onPress={() =>
         navigation.navigate("ProfileDetail", {
-          profileId: item.id,
-          profileName: `${item.firstName} ${item.lastName}`,
-          profileImage: item.image,
+          userData: item,
         })
       }
     >

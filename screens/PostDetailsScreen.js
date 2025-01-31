@@ -2,13 +2,14 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
 const ProfileDetailScreen = ({ route }) => {
-  const { profileId, profileName, profileImage } = route.params || {};
+  const { userData } = route.params || {};
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: profileImage }} style={styles.profileImage} />
+      {/* <Image source={{ uri: profileImage }} style={styles.profileImage} />
       <Text style={styles.name}>{profileName}</Text>
-      <Text style={styles.id}>Profile ID: {profileId}</Text>
+      <Text style={styles.id}>Profile ID: {profileId}</Text> */}
+      {console.log(userData)}
     </View>
   );
 };
