@@ -69,13 +69,13 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
             }}
             style={styles.userImage}
           />
+          <Text style={styles.commentUser}>
+            {item?.user?.firstName +
+              " " +
+              (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
+              item?.user?.lastName || "Unknown"}
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.commentUser}>
-          {item?.user?.firstName +
-            " " +
-            (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
-            item?.user?.lastName || "Unknown"}
-        </Text>
         <Text style={styles.commentTime}>
           {moment(item.createdAt).fromNow()}
         </Text>
