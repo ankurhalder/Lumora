@@ -56,14 +56,14 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
     }
   };
   const handleUserPress = (user) => {
-    console.log(user);
+    console.log("User pressed:", user);
     if (!user || !user.id) {
       console.error("Invalid user data:", user);
       return;
     }
     navigation.navigate("ProfileDetail", { userData: user });
   };
-  console.log(commentsWithUserData);
+
   const renderComment = ({ item }) => (
     <View style={styles.commentItem}>
       <View style={styles.userInfo}>
