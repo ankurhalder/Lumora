@@ -2,7 +2,6 @@ import React, { memo, useState } from "react";
 import {
   NavigationContainer,
   createNavigationContainerRef,
-  useTheme,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
