@@ -49,6 +49,7 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
             onPress={onAddPress}
             accessible
             accessibilityLabel="Add Post"
+            style={styles.iconButton}
           >
             <Ionicons name="add-outline" size={28} color="black" />
           </TouchableOpacity>
@@ -56,6 +57,7 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
             onPress={onSearchPress}
             accessible
             accessibilityLabel="Search"
+            style={styles.iconButton}
           >
             <Ionicons name="search-outline" size={28} color="black" />
           </TouchableOpacity>
@@ -65,7 +67,7 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
   );
 });
 
-const SearchModal = ({ visible, onClose }) => (
+const SearchModal = memo(({ visible, onClose }) => (
   <Modal transparent visible={visible} animationType="fade">
     <View style={styles.modalContainer}>
       <View style={styles.modalContent}>
@@ -80,7 +82,14 @@ const SearchModal = ({ visible, onClose }) => (
       </View>
     </View>
   </Modal>
-);
+));
+
+const tabIcon = (name) => ({
+  tabBarIcon: ({ color, size }) => (
+    <Ionicons name={name} size={size} color={color} />
+  ),
+  tabBarLabel: () => null,
+});
 
 const MainTabs = memo(() => {
   const [searchVisible, setSearchVisible] = useState(false);
@@ -141,13 +150,6 @@ const tabScreenOptions = {
   },
 };
 
-const tabIcon = (name) => ({
-  tabBarIcon: ({ color, size }) => (
-    <Ionicons name={name} size={size} color={color} />
-  ),
-  tabBarLabel: () => null,
-});
-
 const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: "white",
@@ -169,6 +171,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  iconButton: {
+    marginLeft: 16,
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -182,6 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
+    elevation: 5,
   },
   searchInput: {
     flex: 1,
