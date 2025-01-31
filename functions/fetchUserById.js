@@ -1,4 +1,3 @@
-// fetchUserById.js
 export const fetchUserById = async (userId) => {
   try {
     const response = await fetch(`https://dummyjson.com/users/${userId}`);
