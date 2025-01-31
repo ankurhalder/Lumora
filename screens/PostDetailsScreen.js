@@ -46,7 +46,6 @@ const ProfileDetailScreen = ({ route }) => {
           {userData.address?.state} , {userData.address?.country}
         </Text>
       </View>
-      {console.log("Full User Data:", userData)}
     </ScrollView>
   );
 };
