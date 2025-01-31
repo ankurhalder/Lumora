@@ -55,9 +55,15 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       alert("Please enter a comment.");
     }
   };
-  const handleUserPress = (userData) => {
-    navigation.navigate("ProfileDetail", { userData });
+  const handleUserPress = (user) => {
+    console.log(user);
+    if (!user || !user.id) {
+      console.error("Invalid user data:", user);
+      return;
+    }
+    navigation.navigate("ProfileDetail", { userData: user });
   };
+  console.log(commentsWithUserData);
   const renderComment = ({ item }) => (
     <View style={styles.commentItem}>
       <View style={styles.userInfo}>

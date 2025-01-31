@@ -105,7 +105,6 @@ const ProfileDetailScreen = ({ route }) => {
       <Text style={styles.sectionTitle}>Posts by {userData.firstName}</Text>
     </View>
   );
-
   return (
     <View style={styles.container}>
       {loading ? (
