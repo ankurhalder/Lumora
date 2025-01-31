@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
-const PostItem = ({ item, handleLike, openComments, handleShare }) => {
+const PostItem = ({
+  item,
+  handleLike,
+  openComments,
+  handleShare,
+  handleImagePress,
+}) => {
   const [liked, setLiked] = useState(false);
 
   const onLikePress = () => {
@@ -10,13 +16,18 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
     handleLike(item.id, !liked - 1);
   };
 
-  const onSharePress = () => {
-    handleShare(item.id);
-  };
-
   return (
     <View style={styles.postContainer}>
-      <View style={styles.userInfo}>
+      <TouchableOpacity
+        style={styles.userInfo}
+        onPress={() =>
+          handleImagePress(
+            item.user.id,
+            item.user.firstName + " " + item.user.lastName,
+            item.user.image
+          )
+        }
+      >
         <Image
           source={{
             uri: item.user.image || "https://www.ankurhalder.in/apple-icon.png",
@@ -30,7 +41,7 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
             (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
             item?.user?.lastName || "Unknown"}
         </Text>
-      </View>
+      </TouchableOpacity>
 
       <Text style={styles.postTitle}>{item.title}</Text>
       <Text style={styles.postBody}>{item.body}</Text>
@@ -55,7 +66,10 @@ const PostItem = ({ item, handleLike, openComments, handleShare }) => {
           <Text style={styles.actionText}>{item.comments.length} Comments</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton} onPress={onSharePress}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handleShare(item.id)}
+        >
           <FontAwesome name="share" size={20} color="purple" />
           <Text style={styles.actionText}>Share</Text>
         </TouchableOpacity>

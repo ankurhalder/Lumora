@@ -6,6 +6,7 @@ import {
   Image,
   ActivityIndicator,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import fetchAllData from "../functions/fetchAllData";
@@ -45,16 +46,18 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const renderProfileItem = ({ item }) => (
-    <View
+    <TouchableOpacity
       style={styles.profileCard}
-      onTouchEnd={() =>
-        navigation.navigate("ProfileDetail", { userId: item.id })
+      onPress={() =>
+        navigation.navigate("ProfileDetail", {
+          profileId: item.id,
+          profileName: `${item.firstName} ${item.lastName}`,
+          profileImage: item.image,
+        })
       }
     >
       <Image
-        source={{
-          uri: item.image || "https://www.ankurhalder.in/apple-icon.png",
-        }}
+        source={{ uri: item.image || "default-image-url" }}
         style={styles.profileImage}
       />
       <View style={styles.profileInfo}>
@@ -63,7 +66,7 @@ const ProfileScreen = ({ navigation }) => {
         >{`${item.firstName} ${item.lastName}`}</Text>
         <Text style={styles.username}>@{item.username}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

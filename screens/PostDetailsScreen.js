@@ -1,26 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 
 const ProfileDetailScreen = ({ route }) => {
-  const { userId } = route.params;
-
-  const userDetails = {
-    id: userId,
-    firstName: "John",
-    lastName: "Doe",
-    username: "johndoe",
-    email: "john.doe@example.com",
-    bio: "This is a short bio of John Doe.",
-  };
+  const { profileId, profileName, profileImage } = route.params || {};
 
   return (
     <View style={styles.container}>
-      <Text
-        style={styles.fullName}
-      >{`${userDetails.firstName} ${userDetails.lastName}`}</Text>
-      <Text style={styles.username}>@{userDetails.username}</Text>
-      <Text style={styles.email}>{userDetails.email}</Text>
-      <Text style={styles.bio}>{userDetails.bio}</Text>
+      <Image source={{ uri: profileImage }} style={styles.profileImage} />
+      <Text style={styles.name}>{profileName}</Text>
+      <Text style={styles.id}>Profile ID: {profileId}</Text>
     </View>
   );
 };
@@ -30,26 +18,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    backgroundColor: "#fff",
   },
-  fullName: {
-    fontSize: 24,
+  profileImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    marginBottom: 20,
+  },
+  name: {
+    fontSize: 20,
     fontWeight: "bold",
-    marginVertical: 10,
   },
-  username: {
-    fontSize: 18,
-    color: "gray",
-  },
-  email: {
+  id: {
     fontSize: 16,
-    color: "blue",
-  },
-  bio: {
-    marginTop: 20,
-    fontSize: 14,
     color: "gray",
-    textAlign: "center",
   },
 });
 

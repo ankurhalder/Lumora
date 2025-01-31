@@ -7,6 +7,7 @@ import {
   Alert,
   Share,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
@@ -21,7 +22,7 @@ const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const limit = 10;
-
+  const navigation = useNavigation();
   useEffect(() => {
     const loadData = async () => {
       const { users, posts, comments } = await fetchAllData(setLoading);
@@ -77,6 +78,13 @@ const HomeScreen = () => {
       message: `Check out this post: ${postUrl}`,
     }).catch((error) => Alert.alert(error.message));
   };
+  const handleImagePress = (profileId, profileName, profileImage) => {
+    navigation.navigate("ProfileDetail", {
+      profileId,
+      profileName,
+      profileImage,
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -92,6 +100,7 @@ const HomeScreen = () => {
               handleLike={handleLike}
               openComments={openComments}
               handleShare={handleShare}
+              handleImagePress={handleImagePress}
             />
           )}
           onEndReached={loadMorePosts}
