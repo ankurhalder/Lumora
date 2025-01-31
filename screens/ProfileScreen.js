@@ -59,9 +59,11 @@ const ProfileScreen = ({ navigation }) => {
         style={styles.profileImage}
       />
       <View style={styles.profileInfo}>
-        <Text
-          style={styles.fullName}
-        >{`${item.firstName} ${item.lastName}`}</Text>
+        <Text style={styles.fullName}>
+          {`${item.firstName} ${item.maidenName ? item.maidenName + " " : ""}${
+            item.lastName
+          }`}
+        </Text>
         <Text style={styles.username}>@{item.username}</Text>
       </View>
     </TouchableOpacity>

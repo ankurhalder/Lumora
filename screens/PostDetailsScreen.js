@@ -20,9 +20,9 @@ const ProfileDetailScreen = ({ route }) => {
         }}
         style={styles.profileImage}
       />
-      <Text
-        style={styles.name}
-      >{`${userData.firstName} ${userData.lastName}`}</Text>
+      <Text style={styles.name}>{`${userData.firstName} ${
+        userData.maidenName ? userData.maidenName + " " : ""
+      }${userData.lastName}`}</Text>
       <Text style={styles.username}>@{userData.username}</Text>
       <Text style={styles.email}>Email: {userData.email}</Text>
       <Text style={styles.phone}>Phone: {userData.phone}</Text>
