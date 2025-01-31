@@ -3,10 +3,16 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Ionicons } from "react-native-vector-icons";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import ProfileDetailScreen from "../screens/PostDetailsScreen";
+import ProfileDetailScreen from "../screens/ProfileDetailsScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 
@@ -22,17 +28,19 @@ const ProfileStackNavigator = () => (
 
 const TopTabNavigator = () => (
   <>
-    <View style={styles.header}>
-      <Text style={styles.headerText}>Lumora</Text>
-      <View style={styles.iconsContainer}>
-        <TouchableOpacity>
-          <Ionicons name="add-outline" size={28} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="search-outline" size={28} color="black" />
-        </TouchableOpacity>
+    <SafeAreaView style={styles.headerContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Lumora</Text>
+        <View style={styles.iconsContainer}>
+          <TouchableOpacity>
+            <Ionicons name="add-outline" size={28} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="search-outline" size={28} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
     <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen
         name="Home"
@@ -62,7 +70,6 @@ const RootNavigator = () => (
   <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Main" component={TopTabNavigator} />
-      <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
@@ -87,6 +94,9 @@ const tabIcon = (name) => ({
 });
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: "white",
+  },
   header: {
     backgroundColor: "white",
     paddingVertical: 10,

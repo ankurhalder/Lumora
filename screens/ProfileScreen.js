@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import fetchAllData from "../functions/fetchAllData";
-import ProfileDetailScreen from "./PostDetailsScreen";
+import ProfileDetailScreen from "./ProfileDetailsScreen";
 
 const LIMIT = 10;
 const Stack = createStackNavigator();
