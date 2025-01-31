@@ -42,9 +42,6 @@ function TopTabNavigator() {
             height: 3,
             borderRadius: 2,
           },
-          tabBarItemStyle: {
-            transition: "all 0.3s ease",
-          },
         }}
       >
         <Tab.Screen

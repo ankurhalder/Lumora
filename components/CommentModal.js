@@ -19,14 +19,22 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
   useEffect(() => {
     const fetchUserImages = async () => {
-      const updatedComments = await Promise.all(
-        comments.map(async (comment) => {
-          const user = await fetchUserById(comment.user.id);
-          return { ...comment, user };
-        })
-      );
-      setCommentsWithUserData(updatedComments);
+      try {
+        const updatedComments = await Promise.all(
+          comments.map(async (comment) => {
+            const user = await fetchUserById(comment.user.id).catch(() => null);
+            return {
+              ...comment,
+              user: user || { firstName: "Unknown", lastName: "", image: "" },
+            };
+          })
+        );
+        setCommentsWithUserData(updatedComments);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
     };
+
     if (visible) {
       fetchUserImages();
     }
