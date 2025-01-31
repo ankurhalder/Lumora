@@ -1,7 +1,8 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import {
   NavigationContainer,
   createNavigationContainerRef,
+  useTheme,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -12,6 +13,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Modal,
+  TextInput,
+  Pressable,
 } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -25,61 +29,103 @@ const Stack = createStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
 const ProfileStack = memo(() => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      animationEnabled: true,
+    }}
+  >
     <Stack.Screen name="ProfileMain" component={ProfileScreen} />
     <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
   </Stack.Navigator>
 ));
 
-const CustomHeader = memo(() => (
-  <SafeAreaView style={styles.headerContainer}>
-    <View style={styles.header}>
-      <Text style={styles.headerText}>Lumora</Text>
-      <View style={styles.iconsContainer}>
-        <TouchableOpacity accessible accessibilityLabel="Add Post">
-          <Ionicons name="add-outline" size={28} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity accessible accessibilityLabel="Search">
-          <Ionicons name="search-outline" size={28} color="black" />
-        </TouchableOpacity>
+const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
+  return (
+    <SafeAreaView style={styles.headerContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Lumora</Text>
+        <View style={styles.iconsContainer}>
+          <TouchableOpacity
+            onPress={onAddPress}
+            accessible
+            accessibilityLabel="Add Post"
+          >
+            <Ionicons name="add-outline" size={28} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onSearchPress}
+            accessible
+            accessibilityLabel="Search"
+          >
+            <Ionicons name="search-outline" size={28} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+});
+
+const SearchModal = ({ visible, onClose }) => (
+  <Modal transparent visible={visible} animationType="fade">
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <TextInput
+          placeholder="Search..."
+          style={styles.searchInput}
+          autoFocus
+        />
+        <Pressable onPress={onClose} style={styles.closeButton}>
+          <Ionicons name="close-outline" size={28} color="black" />
+        </Pressable>
       </View>
     </View>
-  </SafeAreaView>
-));
+  </Modal>
+);
 
-const MainTabs = memo(() => (
-  <>
-    <CustomHeader />
-    <Tab.Navigator screenOptions={tabScreenOptions}>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={tabIcon("home-outline")}
+const MainTabs = memo(() => {
+  const [searchVisible, setSearchVisible] = useState(false);
+
+  return (
+    <>
+      <CustomHeader
+        onSearchPress={() => setSearchVisible(true)}
+        onAddPress={() => alert("Add Post clicked")}
       />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStack}
-        options={tabIcon("person-outline")}
+      <SearchModal
+        visible={searchVisible}
+        onClose={() => setSearchVisible(false)}
       />
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={tabIcon("notifications-outline")}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={tabIcon("settings-outline")}
-      />
-    </Tab.Navigator>
-  </>
-));
+      <Tab.Navigator screenOptions={tabScreenOptions}>
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={tabIcon("home-outline")}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileStack}
+          options={tabIcon("person-outline")}
+        />
+        <Tab.Screen
+          name="Notifications"
+          component={NotificationsScreen}
+          options={tabIcon("notifications-outline")}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={tabIcon("settings-outline")}
+        />
+      </Tab.Navigator>
+    </>
+  );
+});
 
 const RootNavigator = () => (
   <NavigationContainer ref={navigationRef}>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
-      <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
@@ -123,6 +169,28 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    width: "80%",
+    padding: 16,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    padding: 8,
+  },
+  closeButton: {
+    padding: 8,
   },
 });
 
