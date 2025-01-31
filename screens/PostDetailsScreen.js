@@ -7,18 +7,20 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
 
 const ProfileDetailScreen = ({ route }) => {
+  const [posts, setPosts] = useState([]);
   const { userData } = route.params || {};
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
-
+  const navigation = useNavigation();
   useEffect(() => {
     const loadData = async () => {
       const { users, posts, comments } = await fetchAllData(setLoading);
@@ -31,9 +33,41 @@ const ProfileDetailScreen = ({ route }) => {
     loadData();
   }, [userData]);
 
+  const handleLike = (postId, liked) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const updatedLikes = liked
+            ? post.reactions.likes + 0
+            : post.reactions.likes - 0;
+
+          return {
+            ...post,
+            reactions: {
+              ...post.reactions,
+              likes: updatedLikes,
+            },
+          };
+        }
+        return post;
+      })
+    );
+  };
+
   const openComments = (comments) => {
     setSelectedComments(comments);
     setModalVisible(true);
+  };
+
+  const handleShare = (postId) => {
+    const postUrl = `https://www.ankurhalder.in/${postId}`;
+
+    Share.share({
+      message: `Check out this post: ${postUrl}`,
+    }).catch((error) => Alert.alert(error.message));
+  };
+  const handleImagePress = (userData) => {
+    navigation.navigate("ProfileDetail", { userData });
   };
 
   if (!userData) {
@@ -81,7 +115,13 @@ const ProfileDetailScreen = ({ route }) => {
           data={userPosts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <PostItem item={item} openComments={openComments} />
+            <PostItem
+              item={item}
+              handleLike={handleLike}
+              openComments={openComments}
+              handleShare={handleShare}
+              handleImagePress={handleImagePress}
+            />
           )}
           ListHeaderComponent={renderProfileHeader}
         />
