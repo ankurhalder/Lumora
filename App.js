@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { StyleSheet, StatusBar } from "react-native";
-import RootNavigator from "./navigation/RootNavigator";
+import RootNavigator from "./navigation/AppNavigator";
 
 export default function App() {
   return (
