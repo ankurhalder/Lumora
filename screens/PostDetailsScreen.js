@@ -27,8 +27,8 @@ const ProfileDetailScreen = ({ route }) => {
       <Text style={styles.email}>Email: {userData.email}</Text>
       <Text style={styles.phone}>Phone: {userData.phone}</Text>
       <Text style={styles.address}>
-        Address: {userData.address?.street}, {userData.address?.city},{" "}
-        {userData.address?.state}
+        Address: {userData.address?.address}, {userData.address?.city},
+        {userData.address?.state} , {userData.address?.country}
       </Text>
       {console.log("Full User Data:", userData)}
     </ScrollView>
