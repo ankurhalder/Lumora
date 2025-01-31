@@ -56,7 +56,7 @@ function TopTabNavigator() {
         />
         <Tab.Screen
           name="Profile"
-          component={ProfileStackNavigator} // Use ProfileStackNavigator here
+          component={ProfileStackNavigator}
           options={{
             tabBarIcon: ({ focused, color, size }) => (
               <Ionicons name="person-outline" size={size} color={color} />
