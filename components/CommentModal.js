@@ -9,6 +9,9 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
+
+import { useNavigation } from "@react-navigation/native";
+
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment";
 import { fetchUserById } from "../functions/fetchUserById";
@@ -16,7 +19,7 @@ import { fetchUserById } from "../functions/fetchUserById";
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
   const [commentsWithUserData, setCommentsWithUserData] = useState([]);
-
+  const navigation = useNavigation();
   useEffect(() => {
     const fetchUserImages = async () => {
       try {
@@ -52,16 +55,21 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       alert("Please enter a comment.");
     }
   };
-
+  const handleUserPress = (userData) => {
+    navigation.navigate("ProfileDetail", { userData });
+  };
   const renderComment = ({ item }) => (
     <View style={styles.commentItem}>
       <View style={styles.userInfo}>
-        <Image
-          source={{
-            uri: item.user.image || "https://www.ankurhalder.in/apple-icon.png",
-          }}
-          style={styles.userImage}
-        />
+        <TouchableOpacity onPress={() => handleUserPress(item.user)}>
+          <Image
+            source={{
+              uri:
+                item.user.image || "https://www.ankurhalder.in/apple-icon.png",
+            }}
+            style={styles.userImage}
+          />
+        </TouchableOpacity>
         <Text style={styles.commentUser}>
           {item?.user?.firstName +
             " " +
