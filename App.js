@@ -1,16 +1,32 @@
-import { Fragment } from "react";
-import { StyleSheet, StatusBar } from "react-native";
+import React, { Fragment, useContext } from "react";
+import { StatusBar } from "react-native";
 import RootNavigator from "./navigation/RootNavigator";
-import { ThemeProvider } from "./theme/ThemeProvider";
-export default function App() {
+import {
+  ThemeProvider,
+  useThemeColors,
+  ThemeContext,
+} from "./theme/ThemeProvider";
+
+const AppContent = () => {
+  const colors = useThemeColors();
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
+
   return (
     <Fragment>
-      <StatusBar barStyle="light-content" />
-      <ThemeProvider>
-        <RootNavigator />
-      </ThemeProvider>
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
+      />
+      <RootNavigator />
     </Fragment>
   );
-}
+};
 
-const styles = StyleSheet.create({});
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}

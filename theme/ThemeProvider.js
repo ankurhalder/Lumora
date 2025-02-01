@@ -149,3 +149,5 @@ export const useToggleTheme = () => {
   const { toggleTheme } = useContext(ThemeContext);
   return toggleTheme;
 };
+
+export { ThemeContext };
