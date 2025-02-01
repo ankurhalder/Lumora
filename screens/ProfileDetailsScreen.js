@@ -69,11 +69,29 @@ const ProfileDetailScreen = ({ route }) => {
     setModalVisible(true);
   }, []);
 
-  const handleShare = (postId) => {
-    const postUrl = `https://www.ankurhalder.in/${postId}`;
+  const handleProfileShare = () => {
+    const profileUrl = `https://www.ankurhalder.in/${userData.id}`;
+    const message = `
+      Check out this profile: 
+      Name: ${userData.firstName} ${userData.maidenName || ""} ${
+      userData.lastName
+    }
+      Username: @${userData.username}
+      Email: ${userData.email}
+      Phone: ${userData.phone}
+      Age: ${userData.age}
+      Gender: ${userData.gender}
+      Occupation: ${userData.company?.title} at ${userData.company?.name}
+      Address: ${userData.address?.address}, ${userData.address?.city}, ${
+      userData.address?.state
+    }, ${userData.address?.country}
+      
+      Profile Link: ${profileUrl}
+    `;
+
     Share.share({
-      message: `Check out this post: ${postUrl}`,
-    }).catch((error) => Alert.alert(error.message));
+      message: message,
+    }).catch((error) => Alert.alert("Share Error", error.message));
   };
 
   const handleImagePress = (userData) => {
@@ -156,6 +174,11 @@ const ProfileDetailScreen = ({ route }) => {
       >
         <Text style={{ color: text }}>Back</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.shareButton} onPress={handleProfileShare}>
+        <Text style={styles.shareButtonText}>Share Profile</Text>
+      </TouchableOpacity>
+
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
       ) : (
@@ -167,7 +190,7 @@ const ProfileDetailScreen = ({ route }) => {
               item={item}
               handleLike={handleLike}
               openComments={openComments}
-              handleShare={handleShare}
+              handleShare={() => handleShare(item.id, item.title, item.body)} // Customizable message
               handleImagePress={handleImagePress}
             />
           )}
@@ -181,7 +204,6 @@ const ProfileDetailScreen = ({ route }) => {
         closeModal={() => setModalVisible(false)}
       />
 
-      {/* Follow and Message Buttons */}
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity style={styles.actionButton}>
           <Text style={styles.actionButtonText}>Follow</Text>
@@ -260,6 +282,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  shareButton: {
+    backgroundColor: "#28a745",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  shareButtonText: {
     color: "#fff",
     fontSize: 16,
   },
