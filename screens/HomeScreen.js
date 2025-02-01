@@ -7,6 +7,7 @@ import {
   Alert,
   Share,
   Text,
+  RefreshControl,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -20,6 +21,7 @@ const HomeScreen = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const limit = 10;
@@ -36,16 +38,7 @@ const HomeScreen = () => {
           setPosts(parsedData.slice(0, limit));
           setLoading(false);
         } else {
-          const { users, posts, comments } = await fetchAllData(setLoading);
-          const processedPosts = processData(users, posts, comments);
-
-          await AsyncStorage.setItem(
-            "cachedPosts",
-            JSON.stringify(processedPosts)
-          );
-
-          setAllPosts(processedPosts);
-          setPosts(processedPosts.slice(0, limit));
+          await fetchAndCacheData();
         }
       } catch (error) {
         Alert.alert("Error", "Failed to load posts. Please try again.");
@@ -63,6 +56,30 @@ const HomeScreen = () => {
 
     return clearStorage;
   }, []);
+
+  const fetchAndCacheData = async () => {
+    setLoading(true);
+    try {
+      const { users, posts, comments } = await fetchAllData(setLoading);
+      const processedPosts = processData(users, posts, comments);
+
+      await AsyncStorage.setItem("cachedPosts", JSON.stringify(processedPosts));
+
+      setAllPosts(processedPosts);
+      setPosts(processedPosts.slice(0, limit));
+    } catch (error) {
+      Alert.alert("Error", "Failed to refresh posts.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshPosts = async () => {
+    setRefreshing(true);
+    await AsyncStorage.removeItem("cachedPosts");
+    await fetchAndCacheData();
+    setRefreshing(false);
+  };
 
   const loadMorePosts = () => {
     if (loadingMore || posts.length >= allPosts.length) return;
@@ -140,6 +157,9 @@ const HomeScreen = () => {
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={5}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
+          }
           ListFooterComponent={
             loadingMore ? (
               <View style={styles.footer}>
