@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   Share,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
@@ -22,14 +23,7 @@ const ProfileDetailScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const navigation = useNavigation();
-  const {
-    background,
-    text,
-    gray,
-    accentPurple,
-    borderInputField,
-    shadowLight,
-  } = useThemeColors();
+  const { background, text, gray } = useThemeColors();
   const { userData } = route.params || {};
 
   useEffect(() => {
@@ -93,14 +87,12 @@ const ProfileDetailScreen = ({ route }) => {
         }}
         style={styles.profileImage}
       />
-      <Text style={[styles.name, { color: text }]}>
-        {`${userData.firstName} ${userData.maidenName || ""} ${
-          userData.lastName
-        }`}
-      </Text>
-      <Text style={[styles.username, { color: gray }]}>
-        @{userData.username}
-      </Text>
+      <Text style={[styles.name, { color: text }]}>{`${userData.firstName} ${
+        userData.maidenName || ""
+      } ${userData.lastName}`}</Text>
+      <Text
+        style={[styles.username, { color: gray }]}
+      >{`@${userData.username}`}</Text>
       <View style={styles.infoContainer}>
         <Text style={[styles.infoText, { color: text }]}>
           Email: {userData.email}
@@ -139,6 +131,12 @@ const ProfileDetailScreen = ({ route }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={{ color: text }}>Back</Text>
+      </TouchableOpacity>
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
       ) : (
@@ -188,44 +186,37 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 5,
-    borderColor: "#ffffff",
+    borderWidth: 2,
+    borderColor: "#fff",
     marginBottom: 15,
-    transition: "all 0.3s ease",
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 8,
-    letterSpacing: 0.5,
   },
   username: {
-    fontSize: 20,
-    // color: gray,
-    marginBottom: 15,
-    textAlign: "center",
-    fontStyle: "italic",
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "600",
-    marginVertical: 20,
-    textAlign: "center",
-    letterSpacing: 0.2,
+    fontSize: 18,
+    color: "#888",
+    marginBottom: 10,
   },
   infoContainer: {
-    marginBottom: 20,
-    width: "100%",
-    paddingHorizontal: 15,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    paddingTop: 10,
+    marginVertical: 15,
+    alignItems: "flex-start",
   },
   infoText: {
+    fontSize: 16,
+  },
+  sectionTitle: {
     fontSize: 18,
-    marginBottom: 10,
-    lineHeight: 24,
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
+  backButton: {
+    padding: 10,
+    backgroundColor: "lightgrey",
+    borderRadius: 5,
+    marginBottom: 15,
   },
 });
 
