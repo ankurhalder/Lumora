@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Animated, { withTiming, useSharedValue } from "react-native-reanimated";
 
 const lightTheme = {
   background: "#ffffff",
@@ -65,6 +72,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const systemScheme = useColorScheme();
   const [theme, setTheme] = useState(systemScheme);
+  const opacity = useSharedValue(1);
 
   useEffect(() => {
     AsyncStorage.getItem("theme").then((storedTheme) => {
@@ -74,13 +82,18 @@ export const ThemeProvider = ({ children }) => {
 
   const toggleTheme = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
+
+    opacity.value = withTiming(0, { duration: 300 });
+
     setTheme(newTheme);
     await AsyncStorage.setItem("theme", newTheme);
+
+    opacity.value = withTiming(1, { duration: 300 });
   };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <Animated.View style={{ flex: 1, opacity }}>{children}</Animated.View>
     </ThemeContext.Provider>
   );
 };
