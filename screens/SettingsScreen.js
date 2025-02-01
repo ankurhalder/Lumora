@@ -1,28 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, Switch, Animated, Easing } from "react-native";
+import { View, Text, StyleSheet, Switch } from "react-native";
 import { useThemeColors, useToggleTheme } from "../theme/color";
 
 const SettingsScreen = () => {
   const colors = useThemeColors();
   const toggleTheme = useToggleTheme();
-  const fadeAnim = new Animated.Value(0);
-
-  React.useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: false,
-    }).start();
-  }, [colors]);
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { backgroundColor: colors.background, opacity: fadeAnim },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.text, { color: colors.text }]}>Settings</Text>
 
       <View
@@ -36,12 +21,12 @@ const SettingsScreen = () => {
         </Text>
         <Switch
           value={colors.background === "#121212"}
-          onValueChange={toggleTheme}
+          onValueChange={() => toggleTheme()}
           trackColor={{ false: colors.borderInputField, true: colors.primary }}
           thumbColor={colors.text}
         />
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
