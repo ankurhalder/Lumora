@@ -2,15 +2,18 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   FlatList,
-  ActivityIndicator,
-  StyleSheet,
   Alert,
   Share,
   Text,
-  RefreshControl,
+  Animated,
+  StyleSheet,
+  LayoutAnimation,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import FastImage from "react-native-fast-image";
+import LottieView from "lottie-react-native";
+import BackgroundFetch from "react-native-background-fetch";
 import NetInfo from "@react-native-community/netinfo";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
@@ -18,6 +21,7 @@ import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
 import SkeletonLoader from "../components/SkeletonLoader";
 import debounce from "lodash.debounce";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -27,13 +31,35 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
+  const [fadeAnim] = useState(new Animated.Value(0));
   const [isOffline, setIsOffline] = useState(false);
+  const netInfo = useNetInfo();
   const limit = 10;
   const navigation = useNavigation();
 
   useEffect(() => {
     checkNetworkStatus();
     loadData();
+  }, []);
+
+  useEffect(() => {
+    if (netInfo.isConnected) {
+      fetchAndCacheData();
+    }
+  }, [netInfo.isConnected]);
+
+  useEffect(() => {
+    BackgroundFetch.configure(
+      {
+        minimumFetchInterval: 15,
+        stopOnTerminate: false,
+        startOnBoot: true,
+      },
+      async () => {
+        await fetchAndCacheData();
+        BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
+      }
+    );
   }, []);
 
   const checkNetworkStatus = async () => {
@@ -70,12 +96,16 @@ const HomeScreen = () => {
     try {
       const { users, posts, comments } = await fetchAllData(setLoading);
       const processedPosts = processData(users, posts, comments);
-
       await AsyncStorage.setItem("cachedPosts", JSON.stringify(processedPosts));
       await AsyncStorage.setItem("lastUpdated", Date.now().toString());
-
       setAllPosts(processedPosts);
       setPosts(processedPosts.slice(0, limit));
+
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
     } catch (error) {
       Alert.alert("Error", "Failed to refresh posts.");
     } finally {
@@ -85,17 +115,15 @@ const HomeScreen = () => {
 
   const refreshPosts = async () => {
     setRefreshing(true);
-    await AsyncStorage.removeItem("cachedPosts");
-    await AsyncStorage.removeItem("lastUpdated");
     await fetchAndCacheData();
     setRefreshing(false);
   };
 
   const loadMorePosts = () => {
     if (loadingMore || posts.length >= allPosts.length) return;
-
     setLoadingMore(true);
     setTimeout(() => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setPosts((prevPosts) => [
         ...prevPosts,
         ...allPosts.slice(prevPosts.length, prevPosts.length + limit),
@@ -104,26 +132,23 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const handleLike = useCallback(
-    debounce((postId, liked) => {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? {
-                ...post,
-                reactions: {
-                  ...post.reactions,
-                  likes: liked
-                    ? post.reactions.likes + 1
-                    : post.reactions.likes - 1,
-                },
-              }
-            : post
-        )
-      );
-    }, 300),
-    []
-  );
+  const handleLike = debounce((postId, liked) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              reactions: {
+                ...post.reactions,
+                likes: liked
+                  ? post.reactions.likes + 1
+                  : post.reactions.likes - 1,
+              },
+            }
+          : post
+      )
+    );
+  }, 300);
 
   const openComments = (comments) => {
     setSelectedComments(comments);
@@ -170,17 +195,21 @@ const HomeScreen = () => {
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.5}
           removeClippedSubviews={true}
-          maxToRenderPerBatch={8}
-          initialNumToRender={8}
-          windowSize={5}
           viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
+            <LottieView
+              source={require("../assets/refresh.json")}
+              autoPlay
+              loop
+              style={{ height: 100 }}
+              onAnimationFinish={refreshPosts}
+            />
           }
           ListFooterComponent={
-            loadingMore ? (
-              <SkeletonLoader count={2} style={{ marginBottom: 10 }} />
-            ) : null
+            loadingMore ? <SkeletonLoader count={2} /> : null
           }
         />
       )}
