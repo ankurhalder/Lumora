@@ -159,7 +159,9 @@ const ProfileScreen = ({ navigation }) => {
         onPress={() => handleProfilePress(item)}
       >
         <Image
-          source={{ uri: item.image || "default-image-url" }}
+          source={{
+            uri: item.image || "https://www.ankurhalder.in/apple-icon.png",
+          }}
           style={styles.profileImage}
         />
         <View style={styles.profileInfo}>

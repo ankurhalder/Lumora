@@ -60,10 +60,9 @@ const CustomHeader = memo(({ onSearchPress, onAddPress, onProfilePress }) => {
           <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
             <Ionicons name="search-outline" size={25} color={colors.icon} />
           </TouchableOpacity>
-          {/* Add Profile Image */}
           <TouchableOpacity onPress={onProfilePress} style={styles.iconButton}>
             <Image
-              source={{ uri: "https://www.ankurhalder.in/my-profile-pic.jpg" }}
+              source={{ uri: "https://www.ankurhalder.in/apple-icon.png" }}
               style={styles.profileImage}
             />
           </TouchableOpacity>

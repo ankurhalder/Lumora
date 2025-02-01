@@ -10,7 +10,7 @@ import {
   Share,
   TouchableOpacity,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // For back button icon
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useThemeColors } from "../theme/ThemeProvider";
 
@@ -20,7 +20,6 @@ const UserDetailsScreen = () => {
   const navigation = useNavigation();
   const { background, text, gray } = useThemeColors();
 
-  // Dummy data for user's profile
   const userData = {
     id: 1,
     firstName: "Ankur",
@@ -44,7 +43,6 @@ const UserDetailsScreen = () => {
     image: "https://www.ankurhalder.in/apple-icon.png",
   };
 
-  // Dummy posts for the user
   const posts = [
     {
       id: 1,
@@ -61,7 +59,6 @@ const UserDetailsScreen = () => {
   ];
 
   useEffect(() => {
-    // Simulate fetching posts
     setLoading(false);
     setUserPosts(posts);
   }, []);
@@ -133,7 +130,6 @@ const UserDetailsScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
-      {/* Back Button with Icon */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -141,10 +137,8 @@ const UserDetailsScreen = () => {
         <Icon name="arrow-back" size={24} color={text} />
       </TouchableOpacity>
 
-      {/* Profile Header */}
       {renderProfileHeader()}
 
-      {/* Action Buttons: Follow, Message, Share */}
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity
           style={styles.actionButton}
@@ -170,7 +164,6 @@ const UserDetailsScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* User Posts */}
       <FlatList
         data={userPosts}
         keyExtractor={(item) => item.id.toString()}
