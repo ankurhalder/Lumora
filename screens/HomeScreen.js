@@ -17,6 +17,7 @@ import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
 import SkeletonLoader from "../components/SkeletonLoader";
 import debounce from "lodash.debounce";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -29,6 +30,7 @@ const HomeScreen = () => {
   const [isOffline, setIsOffline] = useState(false);
   const limit = 10;
   const navigation = useNavigation();
+  const colors = useThemeColors();
 
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
@@ -162,8 +164,12 @@ const HomeScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      {isOffline && <Text style={styles.offlineMessage}>You are offline</Text>}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {isOffline && (
+        <Text style={[styles.offlineMessage, { color: colors.error }]}>
+          You are offline
+        </Text>
+      )}
 
       {loading ? (
         <SkeletonLoader count={5} />
@@ -203,11 +209,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#f8f9fa",
   },
   offlineMessage: {
     textAlign: "center",
-    color: "red",
     padding: 5,
     marginBottom: 5,
     fontWeight: "bold",

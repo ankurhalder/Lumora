@@ -10,12 +10,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   Modal,
   TextInput,
   Pressable,
-  useColorScheme,
+  StyleSheet,
 } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -113,9 +112,18 @@ const MainTabs = memo(() => {
         screenOptions={{
           tabBarActiveTintColor: colors.text,
           tabBarInactiveTintColor: colors.inactiveTab,
-          tabBarStyle: { backgroundColor: colors.background, elevation: 5 },
+          tabBarStyle: {
+            backgroundColor: colors.background,
+
+            borderTopColor: colors.cardOutline,
+            shadowColor: colors.shadowMedium,
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 5,
+          },
           tabBarIndicatorStyle: {
-            backgroundColor: colors.text,
+            backgroundColor: colors.primary,
             height: 3,
             borderRadius: 2,
           },
