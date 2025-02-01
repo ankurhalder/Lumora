@@ -17,6 +17,7 @@ import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
 import { useThemeColors } from "../theme/ThemeProvider";
+import Icon from "react-native-vector-icons/MaterialIcons"; // Importing the icon
 
 const ProfileDetailScreen = ({ route }) => {
   const [userPosts, setUserPosts] = useState([]);
@@ -69,6 +70,7 @@ const ProfileDetailScreen = ({ route }) => {
     setModalVisible(true);
   }, []);
 
+  // Social Sharing Enhancements: Share the entire profile
   const handleProfileShare = () => {
     const profileUrl = `https://www.ankurhalder.in/${userData.id}`;
     const message = `
@@ -168,16 +170,46 @@ const ProfileDetailScreen = ({ route }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
+      {/* Back Button with Icon */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={{ color: text }}>Back</Text>
+        <Icon name="arrow-back" size={24} color={text} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.shareButton} onPress={handleProfileShare}>
-        <Text style={styles.shareButtonText}>Share Profile</Text>
-      </TouchableOpacity>
+      {/* Show share, follow, and message buttons only after loading is complete */}
+      {!loading && (
+        <>
+          {/* Profile Share Button */}
+          <TouchableOpacity
+            style={styles.shareButton}
+            onPress={handleProfileShare}
+          >
+            <Text style={styles.shareButtonText}>Share Profile</Text>
+          </TouchableOpacity>
+
+          {/* Follow and Message Buttons */}
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() =>
+                Alert.alert("Followed", "You are now following this user.")
+              }
+            >
+              <Text style={styles.actionButtonText}>Follow</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() =>
+                Alert.alert("Message", "You have sent a message to this user.")
+              }
+            >
+              <Text style={styles.actionButtonText}>Message</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
@@ -203,15 +235,6 @@ const ProfileDetailScreen = ({ route }) => {
         comments={selectedComments}
         closeModal={() => setModalVisible(false)}
       />
-
-      <View style={styles.actionButtonsContainer}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Follow</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Message</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -265,8 +288,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 10,
-    backgroundColor: "lightgrey",
-    borderRadius: 5,
     marginBottom: 15,
   },
   actionButtonsContainer: {
