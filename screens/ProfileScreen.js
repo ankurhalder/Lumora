@@ -15,7 +15,6 @@ import {
   RefreshControl,
   Alert,
   TextInput,
-  Button,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
@@ -37,7 +36,6 @@ const ProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [retry, setRetry] = useState(false);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   const { background, text, secondary } = useThemeColors();
@@ -59,13 +57,8 @@ const ProfileScreen = ({ navigation }) => {
       if (
         storedProfiles &&
         lastUpdated &&
-        Date.now() - parseInt(lastUpdated) < 10 * 60 * 1000
+        Date.now() - parseInt(lastUpdated) < 10 * 60
       ) {
-        const parsedProfiles = JSON.parse(storedProfiles);
-        setAllProfiles(parsedProfiles);
-        setProfiles(parsedProfiles.slice(0, LIMIT));
-        setLoading(false);
-      } else if (storedProfiles) {
         const parsedProfiles = JSON.parse(storedProfiles);
         setAllProfiles(parsedProfiles);
         setProfiles(parsedProfiles.slice(0, LIMIT));
@@ -96,15 +89,9 @@ const ProfileScreen = ({ navigation }) => {
         "Error",
         "Failed to refresh profiles. Please check your internet connection."
       );
-      setRetry(true);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleRetry = async () => {
-    setRetry(false);
-    await fetchAndCacheProfiles();
   };
 
   const refreshProfiles = async () => {
@@ -195,19 +182,10 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
-      {isOffline && !loading && !retry && (
+      {isOffline && (
         <Text style={[styles.offlineMessage, { color: secondary }]}>
-          You are offline. Showing cached data (may be outdated).
+          You are offline
         </Text>
-      )}
-
-      {retry && !isOffline && (
-        <View style={styles.retryContainer}>
-          <Text style={[styles.retryMessage, { color: secondary }]}>
-            Failed to load profiles. Please try again.
-          </Text>
-          <Button title="Retry" onPress={handleRetry} />
-        </View>
       )}
 
       <TextInput
@@ -321,15 +299,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     marginBottom: 15,
-    fontSize: 16,
-  },
-  retryContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  retryMessage: {
-    marginBottom: 10,
     fontSize: 16,
   },
 });
