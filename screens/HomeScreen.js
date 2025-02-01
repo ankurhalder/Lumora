@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -8,7 +8,6 @@ import {
   Share,
   Text,
   RefreshControl,
-  Animated,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -17,7 +16,8 @@ import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
-import { debounce } from "lodash";
+import SkeletonLoader from "../components/SkeletonLoader";
+import debounce from "lodash.debounce";
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -27,62 +27,43 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
-  const [isConnected, setIsConnected] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
   const limit = 10;
   const navigation = useNavigation();
-  const fadeAnim = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem("cachedPosts");
-        const lastUpdated = await AsyncStorage.getItem("lastUpdated");
-
-        const isDataOld = lastUpdated
-          ? Date.now() - JSON.parse(lastUpdated) > 5 * 60 * 1000
-          : true;
-
-        if (storedData && !isDataOld) {
-          const parsedData = JSON.parse(storedData);
-          setAllPosts(parsedData);
-          setPosts(parsedData.slice(0, limit));
-          setLoading(false);
-        } else {
-          await fetchAndCacheData();
-        }
-      } catch (error) {
-        Alert.alert("Error", "Failed to load posts. Please try again.");
-        setLoading(false);
-      }
-    };
-
+    checkNetworkStatus();
     loadData();
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsConnected(state.isConnected);
+  const checkNetworkStatus = async () => {
+    NetInfo.fetch().then((state) => {
+      setIsOffline(!state.isConnected);
     });
+  };
 
-    return () => unsubscribe();
-  }, []);
+  const loadData = async () => {
+    try {
+      const lastUpdated = await AsyncStorage.getItem("lastUpdated");
+      const storedData = await AsyncStorage.getItem("cachedPosts");
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0.6,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [fadeAnim]);
+      if (
+        storedData &&
+        lastUpdated &&
+        Date.now() - parseInt(lastUpdated) < 10 * 60 * 1000
+      ) {
+        const parsedData = JSON.parse(storedData);
+        setAllPosts(parsedData);
+        setPosts(parsedData.slice(0, limit));
+        setLoading(false);
+      } else {
+        await fetchAndCacheData();
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to load posts. Please try again.");
+      setLoading(false);
+    }
+  };
 
   const fetchAndCacheData = async () => {
     setLoading(true);
@@ -91,7 +72,7 @@ const HomeScreen = () => {
       const processedPosts = processData(users, posts, comments);
 
       await AsyncStorage.setItem("cachedPosts", JSON.stringify(processedPosts));
-      await AsyncStorage.setItem("lastUpdated", JSON.stringify(Date.now()));
+      await AsyncStorage.setItem("lastUpdated", Date.now().toString());
 
       setAllPosts(processedPosts);
       setPosts(processedPosts.slice(0, limit));
@@ -104,7 +85,8 @@ const HomeScreen = () => {
 
   const refreshPosts = async () => {
     setRefreshing(true);
-    // await AsyncStorage.removeItem("cachedPosts");
+    await AsyncStorage.removeItem("cachedPosts");
+    await AsyncStorage.removeItem("lastUpdated");
     await fetchAndCacheData();
     setRefreshing(false);
   };
@@ -122,23 +104,26 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const handleLike = debounce((postId, liked) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              reactions: {
-                ...post.reactions,
-                likes: liked
-                  ? post.reactions.likes + 1
-                  : post.reactions.likes - 1,
-              },
-            }
-          : post
-      )
-    );
-  }, 300);
+  const handleLike = useCallback(
+    debounce((postId, liked) => {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                reactions: {
+                  ...post.reactions,
+                  likes: liked
+                    ? post.reactions.likes + 1
+                    : post.reactions.likes - 1,
+                },
+              }
+            : post
+        )
+      );
+    }, 300),
+    []
+  );
 
   const openComments = (comments) => {
     setSelectedComments(comments);
@@ -171,31 +156,12 @@ const HomeScreen = () => {
     []
   );
 
-  const SkeletonLoader = () => (
-    <View>
-      {[...Array(5)].map((_, index) => (
-        <Animated.View
-          key={index}
-          style={[styles.skeletonContainer, { opacity: fadeAnim }]}
-        >
-          <View style={styles.skeletonProfile} />
-          <View style={styles.skeletonTextContainer}>
-            <View style={styles.skeletonText} />
-            <View style={[styles.skeletonText, { width: "50%" }]} />
-          </View>
-        </Animated.View>
-      ))}
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      {!isConnected && (
-        <Text style={styles.noInternet}>No Internet Connection</Text>
-      )}
+      {isOffline && <Text style={styles.offlineMessage}>You are offline</Text>}
 
       {loading ? (
-        <SkeletonLoader />
+        <SkeletonLoader count={5} />
       ) : (
         <FlatList
           data={posts}
@@ -213,10 +179,7 @@ const HomeScreen = () => {
           }
           ListFooterComponent={
             loadingMore ? (
-              <View style={styles.footer}>
-                <ActivityIndicator size="small" />
-                <Text style={styles.loadingText}>Loading more...</Text>
-              </View>
+              <SkeletonLoader count={2} style={{ marginBottom: 10 }} />
             ) : null
           }
         />
@@ -232,31 +195,17 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, backgroundColor: "#f8f9fa" },
-  noInternet: {
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#f8f9fa",
+  },
+  offlineMessage: {
     textAlign: "center",
     color: "red",
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  skeletonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  skeletonProfile: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#ddd",
-  },
-  skeletonTextContainer: { marginLeft: 10 },
-  skeletonText: {
-    width: 120,
-    height: 12,
-    backgroundColor: "#ddd",
-    marginTop: 6,
-    borderRadius: 4,
+    padding: 5,
+    marginBottom: 5,
+    fontWeight: "bold",
   },
 });
 
