@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, StyleSheet } from "react-native";
 
-const SkeletonLoader = ({ count = 5, style = {} }) => {
+const SkeletonLoader = ({ count = 5 }) => {
   const fadeAnim = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
@@ -22,17 +22,22 @@ const SkeletonLoader = ({ count = 5, style = {} }) => {
   }, [fadeAnim]);
 
   return (
-    <View>
+    <View style={styles.container}>
       {[...Array(count)].map((_, index) => (
         <Animated.View
           key={index}
-          style={[styles.skeletonContainer, { opacity: fadeAnim }, style]}
+          style={[styles.skeletonPost, { opacity: fadeAnim }]}
         >
-          <View style={styles.skeletonProfile} />
-          <View style={styles.skeletonTextContainer}>
-            <View style={styles.skeletonText} />
-            <View style={[styles.skeletonText, { width: "50%" }]} />
+          <View style={styles.header}>
+            <View style={styles.skeletonProfile} />
+            <View style={styles.skeletonTextContainer}>
+              <View style={styles.skeletonName} />
+              <View style={styles.skeletonTimestamp} />
+            </View>
           </View>
+
+          <View style={styles.skeletonPostContent} />
+          <View style={[styles.skeletonPostContent, { width: "70%" }]} />
         </Animated.View>
       ))}
     </View>
@@ -40,10 +45,19 @@ const SkeletonLoader = ({ count = 5, style = {} }) => {
 };
 
 const styles = StyleSheet.create({
-  skeletonContainer: {
+  container: {
+    padding: 10,
+  },
+  skeletonPost: {
+    backgroundColor: "#f0f0f0",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   skeletonProfile: {
     width: 50,
@@ -51,12 +65,27 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: "#ddd",
   },
-  skeletonTextContainer: { marginLeft: 10 },
-  skeletonText: {
-    width: 120,
+  skeletonTextContainer: {
+    marginLeft: 10,
+  },
+  skeletonName: {
+    width: 100,
     height: 12,
     backgroundColor: "#ddd",
-    marginTop: 6,
+    borderRadius: 4,
+  },
+  skeletonTimestamp: {
+    width: 60,
+    height: 10,
+    backgroundColor: "#ddd",
+    marginTop: 5,
+    borderRadius: 4,
+  },
+  skeletonPostContent: {
+    width: "100%",
+    height: 12,
+    backgroundColor: "#ddd",
+    marginTop: 10,
     borderRadius: 4,
   },
 });
