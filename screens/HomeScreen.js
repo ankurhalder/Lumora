@@ -146,9 +146,12 @@ const HomeScreen = () => {
     }
   };
 
-  const handleImagePress = (userData) => {
-    navigation.navigate("ProfileDetail", { userData });
-  };
+  const handleImagePress = useCallback(
+    debounce((userData) => {
+      navigation.navigate("ProfileDetail", { userData });
+    }, 300),
+    [navigation]
+  );
 
   const renderItem = useCallback(
     ({ item }) => (
