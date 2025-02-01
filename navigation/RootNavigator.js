@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -11,9 +11,6 @@ import {
   Text,
   TouchableOpacity,
   SafeAreaView,
-  Modal,
-  TextInput,
-  Pressable,
   StyleSheet,
 } from "react-native";
 import HomeScreen from "../screens/HomeScreen.js";
@@ -67,34 +64,6 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
   );
 });
 
-const SearchModal = memo(({ visible, onClose }) => {
-  const colors = useThemeColors();
-
-  return (
-    <Modal transparent visible={visible} animationType="fade">
-      <View
-        style={[styles.modalContainer, { backgroundColor: colors.overlay }]}
-      >
-        <View
-          style={[
-            styles.modalContent,
-            { backgroundColor: colors.modalBackground },
-          ]}
-        >
-          <TextInput
-            placeholder="Search..."
-            style={[styles.searchInput, { color: colors.text }]}
-            autoFocus
-          />
-          <Pressable onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close-outline" size={25} color={colors.icon} />
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
-  );
-});
-
 const tabIcon = (name) => ({
   tabBarIcon: ({ color, size }) => (
     <Ionicons name={name} size={size} color={color} />
@@ -103,18 +72,17 @@ const tabIcon = (name) => ({
 });
 
 const MainTabs = memo(() => {
-  const [searchVisible, setSearchVisible] = useState(false);
   const colors = useThemeColors();
+
+  const handleSearchPress = () => {
+    alert("Search icon clicked!");
+  };
 
   return (
     <>
       <CustomHeader
-        onSearchPress={() => setSearchVisible(true)}
+        onSearchPress={handleSearchPress}
         onAddPress={() => alert("Add Post clicked")}
-      />
-      <SearchModal
-        visible={searchVisible}
-        onClose={() => setSearchVisible(false)}
       />
       <Tab.Navigator
         screenOptions={{
@@ -201,29 +169,6 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "85%",
-    padding: 20,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    elevation: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 18,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#f1f1f1",
-  },
-  closeButton: {
-    padding: 10,
   },
 });
 
