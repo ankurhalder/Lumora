@@ -8,6 +8,9 @@ import {
   TextInput,
   StyleSheet,
   Image,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,6 +21,7 @@ import { useThemeColors } from "../theme/ThemeProvider";
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
   const [commentsWithUserData, setCommentsWithUserData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const { background, text, secondary, borderInputField, primary } =
     useThemeColors();
@@ -35,8 +39,10 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
           })
         );
         setCommentsWithUserData(updatedComments);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching users:", error);
+        setLoading(false);
       }
     };
 
@@ -76,6 +82,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
                 item.user.image || "https://www.ankurhalder.in/apple-icon.png",
             }}
             style={styles.userImage}
+            onError={() => console.log("Error loading user image")}
           />
           <Text style={[styles.commentUser, { color: text }]}>
             {item?.user?.firstName +
@@ -105,39 +112,48 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
-      <View style={[styles.modalContainer, { backgroundColor: background }]}>
-        <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={[styles.modalContainer, { backgroundColor: background }]}>
+          <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
 
-        <FlatList
-          data={commentsWithUserData}
-          keyExtractor={(comment) => comment.id.toString()}
-          renderItem={renderComment}
-        />
+          {loading ? (
+            <ActivityIndicator size="large" color={primary} />
+          ) : (
+            <FlatList
+              data={commentsWithUserData}
+              keyExtractor={(comment) => comment.id.toString()}
+              renderItem={renderComment}
+            />
+          )}
 
-        <View style={styles.addCommentContainer}>
-          <TextInput
-            style={[
-              styles.commentInput,
-              { borderColor: borderInputField, color: text },
-            ]}
-            placeholder="Write a comment..."
-            placeholderTextColor={secondary}
-            value={newComment}
-            onChangeText={setNewComment}
-            multiline
-          />
-          <TouchableOpacity
-            style={[styles.postButton, { backgroundColor: primary }]}
-            onPress={handlePostComment}
-          >
-            <Text style={styles.postButtonText}>Post</Text>
+          <View style={styles.addCommentContainer}>
+            <TextInput
+              style={[
+                styles.commentInput,
+                { borderColor: borderInputField, color: text },
+              ]}
+              placeholder="Write a comment..."
+              placeholderTextColor={secondary}
+              value={newComment}
+              onChangeText={setNewComment}
+              multiline
+            />
+            <TouchableOpacity
+              style={[styles.postButton, { backgroundColor: primary }]}
+              onPress={handlePostComment}
+            >
+              <Text style={styles.postButtonText}>Post</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>Close</Text>
-        </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
