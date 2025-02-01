@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   FlatList,
@@ -8,13 +8,16 @@ import {
   Share,
   Text,
   RefreshControl,
+  Animated,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import NetInfo from "@react-native-community/netinfo";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
+import { debounce } from "lodash";
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -24,15 +27,22 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
+  const [isConnected, setIsConnected] = useState(true);
   const limit = 10;
   const navigation = useNavigation();
+  const fadeAnim = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const storedData = await AsyncStorage.getItem("cachedPosts");
+        const lastUpdated = await AsyncStorage.getItem("lastUpdated");
 
-        if (storedData) {
+        const isDataOld = lastUpdated
+          ? Date.now() - JSON.parse(lastUpdated) > 5 * 60 * 1000
+          : true;
+
+        if (storedData && !isDataOld) {
           const parsedData = JSON.parse(storedData);
           setAllPosts(parsedData);
           setPosts(parsedData.slice(0, limit));
@@ -50,12 +60,29 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    const clearStorage = async () => {
-      await AsyncStorage.removeItem("cachedPosts");
-    };
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected);
+    });
 
-    return clearStorage;
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.6,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [fadeAnim]);
 
   const fetchAndCacheData = async () => {
     setLoading(true);
@@ -64,6 +91,7 @@ const HomeScreen = () => {
       const processedPosts = processData(users, posts, comments);
 
       await AsyncStorage.setItem("cachedPosts", JSON.stringify(processedPosts));
+      await AsyncStorage.setItem("lastUpdated", JSON.stringify(Date.now()));
 
       setAllPosts(processedPosts);
       setPosts(processedPosts.slice(0, limit));
@@ -76,7 +104,7 @@ const HomeScreen = () => {
 
   const refreshPosts = async () => {
     setRefreshing(true);
-    await AsyncStorage.removeItem("cachedPosts");
+    // await AsyncStorage.removeItem("cachedPosts");
     await fetchAndCacheData();
     setRefreshing(false);
   };
@@ -94,7 +122,7 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const handleLike = (postId, liked) => {
+  const handleLike = debounce((postId, liked) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
         post.id === postId
@@ -110,7 +138,7 @@ const HomeScreen = () => {
           : post
       )
     );
-  };
+  }, 300);
 
   const openComments = (comments) => {
     setSelectedComments(comments);
@@ -130,33 +158,56 @@ const HomeScreen = () => {
     navigation.navigate("ProfileDetail", { userData });
   };
 
+  const renderItem = useCallback(
+    ({ item }) => (
+      <PostItem
+        item={item}
+        handleLike={handleLike}
+        openComments={openComments}
+        handleShare={handleShare}
+        handleImagePress={handleImagePress}
+      />
+    ),
+    []
+  );
+
+  const SkeletonLoader = () => (
+    <View>
+      {[...Array(5)].map((_, index) => (
+        <Animated.View
+          key={index}
+          style={[styles.skeletonContainer, { opacity: fadeAnim }]}
+        >
+          <View style={styles.skeletonProfile} />
+          <View style={styles.skeletonTextContainer}>
+            <View style={styles.skeletonText} />
+            <View style={[styles.skeletonText, { width: "50%" }]} />
+          </View>
+        </Animated.View>
+      ))}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
+      {!isConnected && (
+        <Text style={styles.noInternet}>No Internet Connection</Text>
+      )}
+
       {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
+        <SkeletonLoader />
       ) : (
         <FlatList
           data={posts}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <PostItem
-              item={item}
-              handleLike={handleLike}
-              openComments={openComments}
-              handleShare={handleShare}
-              handleImagePress={handleImagePress}
-            />
-          )}
+          renderItem={renderItem}
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.5}
-          getItemLayout={(data, index) => ({
-            length: 120,
-            offset: 120 * index,
-            index,
-          })}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={8}
+          initialNumToRender={8}
           windowSize={5}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
           }
@@ -181,19 +232,31 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#f8f9fa",
+  container: { flex: 1, padding: 10, backgroundColor: "#f8f9fa" },
+  noInternet: {
+    textAlign: "center",
+    color: "red",
+    fontSize: 16,
+    marginBottom: 10,
   },
-  footer: {
+  skeletonContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    marginBottom: 20,
   },
-  loadingText: {
-    marginTop: 5,
-    fontSize: 14,
-    color: "gray",
+  skeletonProfile: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#ddd",
+  },
+  skeletonTextContainer: { marginLeft: 10 },
+  skeletonText: {
+    width: 120,
+    height: 12,
+    backgroundColor: "#ddd",
+    marginTop: 6,
+    borderRadius: 4,
   },
 });
 
