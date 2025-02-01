@@ -109,23 +109,24 @@ const HomeScreen = () => {
 
   const handleLike = useCallback(
     debounce((postId, liked) => {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? {
-                ...post,
-                reactions: {
-                  ...post.reactions,
-                  likes: liked
-                    ? post.reactions.likes + 1
-                    : post.reactions.likes - 1,
-                },
-              }
-            : post
-        )
-      );
+      setPosts((prevPosts) => {
+        const updatedPosts = [...prevPosts];
+        const postIndex = updatedPosts.findIndex((post) => post.id === postId);
+        if (postIndex !== -1) {
+          updatedPosts[postIndex] = {
+            ...updatedPosts[postIndex],
+            reactions: {
+              ...updatedPosts[postIndex].reactions,
+              likes: liked
+                ? updatedPosts[postIndex].reactions.likes + 1
+                : updatedPosts[postIndex].reactions.likes - 1,
+            },
+          };
+        }
+        return updatedPosts;
+      });
     }, 300),
-    []
+    [setPosts]
   );
 
   const openComments = (comments) => {
