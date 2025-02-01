@@ -56,10 +56,10 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
         <Text style={[styles.headerText, { color: colors.text }]}>Lumora</Text>
         <View style={styles.iconsContainer}>
           <TouchableOpacity onPress={onAddPress} style={styles.iconButton}>
-            <Ionicons name="add-outline" size={28} color={colors.icon} />
+            <Ionicons name="add-outline" size={25} color={colors.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
-            <Ionicons name="search-outline" size={28} color={colors.icon} />
+            <Ionicons name="search-outline" size={25} color={colors.icon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -87,7 +87,7 @@ const SearchModal = memo(({ visible, onClose }) => {
             autoFocus
           />
           <Pressable onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close-outline" size={28} color={colors.icon} />
+            <Ionicons name="close-outline" size={25} color={colors.icon} />
           </Pressable>
         </View>
       </View>
@@ -131,7 +131,7 @@ const MainTabs = memo(() => {
           },
           tabBarIndicatorStyle: {
             backgroundColor: colors.primary,
-            height: 3,
+            height: 4,
             borderRadius: 2,
           },
         }}
@@ -183,22 +183,24 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   header: {
-    paddingVertical: 10,
+    paddingVertical: 5,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 15,
   },
   headerText: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 400,
+    textTransform: "uppercase",
+    letterSpacing: 2,
   },
   iconsContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   iconButton: {
-    marginLeft: 16,
+    marginLeft: 20,
   },
   modalContainer: {
     flex: 1,
@@ -206,20 +208,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    width: "80%",
-    padding: 16,
-    borderRadius: 10,
+    width: "85%",
+    padding: 20,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    elevation: 5,
+    elevation: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    padding: 8,
+    fontSize: 18,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#f1f1f1",
   },
   closeButton: {
-    padding: 8,
+    padding: 10,
   },
 });
 
