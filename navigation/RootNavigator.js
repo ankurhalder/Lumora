@@ -11,11 +11,13 @@ import {
   Text,
   TouchableOpacity,
   SafeAreaView,
+  Image,
   StyleSheet,
 } from "react-native";
 import HomeScreen from "../screens/HomeScreen.js";
 import ProfileScreen from "../screens/ProfileScreen.js";
 import ProfileDetailScreen from "../screens/ProfileDetailsScreen.js";
+import UserDetailsScreen from "../screens/UserDetailsScreen.js";
 import NotificationsScreen from "../screens/NotificationsScreen.js";
 import SettingsScreen from "../screens/SettingsScreen.js";
 import { useThemeColors } from "../theme/ThemeProvider.js";
@@ -42,7 +44,7 @@ const ProfileStack = memo(() => (
   </Stack.Navigator>
 ));
 
-const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
+const CustomHeader = memo(({ onSearchPress, onAddPress, onProfilePress }) => {
   const colors = useThemeColors();
 
   return (
@@ -57,6 +59,13 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
           </TouchableOpacity>
           <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
             <Ionicons name="search-outline" size={25} color={colors.icon} />
+          </TouchableOpacity>
+          {/* Add Profile Image */}
+          <TouchableOpacity onPress={onProfilePress} style={styles.iconButton}>
+            <Image
+              source={{ uri: "https://www.ankurhalder.in/my-profile-pic.jpg" }}
+              style={styles.profileImage}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -78,11 +87,16 @@ const MainTabs = memo(() => {
     alert("Search icon clicked!");
   };
 
+  const handleProfilePress = () => {
+    navigationRef.current?.navigate("UserDetails");
+  };
+
   return (
     <>
       <CustomHeader
         onSearchPress={handleSearchPress}
         onAddPress={() => alert("Add Post clicked")}
+        onProfilePress={handleProfilePress}
       />
       <Tab.Navigator
         screenOptions={{
@@ -142,6 +156,11 @@ const RootNavigator = () => (
         component={ProfileDetailScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="UserDetails"
+        component={UserDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   </NavigationContainer>
 );
@@ -169,6 +188,13 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: 20,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "white",
   },
 });
 
