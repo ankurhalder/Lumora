@@ -183,9 +183,19 @@ const ProfileScreen = ({ navigation }) => {
 };
 
 const ProfileStackNavigator = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="Profile" component={ProfileScreen} />
-    <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animationEnabled: true }}
+  >
+    <Stack.Screen
+      name="ProfileMain"
+      component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="ProfileDetail"
+      component={ProfileDetailScreen}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
 

@@ -32,8 +32,16 @@ const ProfileStack = memo(() => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animationEnabled: true }}
   >
-    <Stack.Screen name="ProfileMain" component={ProfileScreen} />
-    <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
+    <Stack.Screen
+      name="ProfileMain"
+      component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="ProfileDetail"
+      component={ProfileDetailScreen}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 ));
 
@@ -157,8 +165,16 @@ const MainTabs = memo(() => {
 const RootNavigator = () => (
   <NavigationContainer ref={navigationRef}>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={MainTabs} />
-      <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
+      <Stack.Screen
+        name="ProfileMain"
+        component={MainTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProfileDetail"
+        component={ProfileDetailScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   </NavigationContainer>
 );
