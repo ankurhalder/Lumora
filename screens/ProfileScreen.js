@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -7,9 +7,14 @@ import {
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
+  RefreshControl,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import { createStackNavigator } from "@react-navigation/stack";
 import fetchAllData from "../functions/fetchAllData";
+import debounce from "lodash.debounce";
 import ProfileDetailScreen from "./ProfileDetailsScreen";
 
 const LIMIT = 10;
@@ -20,66 +25,140 @@ const ProfileScreen = ({ navigation }) => {
   const [allProfiles, setAllProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   useEffect(() => {
-    const loadProfiles = async () => {
-      const { users } = await fetchAllData(setLoading);
-      setAllProfiles(users);
-      setProfiles(users.slice(0, LIMIT));
-      setLoading(false);
-    };
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsOffline(!state.isConnected);
+    });
 
     loadProfiles();
+    return unsubscribe;
   }, []);
+
+  const loadProfiles = async () => {
+    try {
+      const lastUpdated = await AsyncStorage.getItem("lastUpdatedProfiles");
+      const storedProfiles = await AsyncStorage.getItem("cachedProfiles");
+
+      if (
+        storedProfiles &&
+        lastUpdated &&
+        Date.now() - parseInt(lastUpdated) < 10 * 60 * 1000
+      ) {
+        const parsedProfiles = JSON.parse(storedProfiles);
+        setAllProfiles(parsedProfiles);
+        setProfiles(parsedProfiles.slice(0, LIMIT));
+        setLoading(false);
+      } else {
+        await fetchAndCacheProfiles();
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to load profiles. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const fetchAndCacheProfiles = async () => {
+    setLoading(true);
+    try {
+      const { users } = await fetchAllData(setLoading);
+
+      await AsyncStorage.multiSet([
+        ["cachedProfiles", JSON.stringify(users)],
+        ["lastUpdatedProfiles", Date.now().toString()],
+      ]);
+
+      setAllProfiles(users);
+      setProfiles(users.slice(0, LIMIT));
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to refresh profiles. Please check your internet connection."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshProfiles = async () => {
+    setRefreshing(true);
+    await AsyncStorage.multiRemove(["cachedProfiles", "lastUpdatedProfiles"]);
+    await fetchAndCacheProfiles();
+    setRefreshing(false);
+  };
 
   const loadMoreProfiles = () => {
     if (loadingMore || profiles.length >= allProfiles.length) return;
 
     setLoadingMore(true);
     setTimeout(() => {
-      const nextProfiles = allProfiles.slice(0, (page + 1) * LIMIT);
-      setProfiles(nextProfiles);
-      setPage(page + 1);
+      setProfiles((prevProfiles) => [
+        ...prevProfiles,
+        ...allProfiles.slice(prevProfiles.length, prevProfiles.length + LIMIT),
+      ]);
       setLoadingMore(false);
     }, 1000);
   };
 
-  const renderProfileItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.profileCard}
-      onPress={() =>
-        navigation.navigate("ProfileDetail", {
-          userData: item,
-        })
-      }
-    >
-      <Image
-        source={{ uri: item.image || "default-image-url" }}
-        style={styles.profileImage}
-      />
-      <View style={styles.profileInfo}>
-        <Text style={styles.fullName}>
-          {`${item.firstName} ${item.maidenName ? item.maidenName + " " : ""}${
-            item.lastName
-          }`}
-        </Text>
-        <Text style={styles.username}>@{item.username}</Text>
-      </View>
-    </TouchableOpacity>
+  const handleProfilePress = useCallback(
+    debounce((userData) => {
+      navigation.navigate("ProfileDetail", { userData });
+    }, 300),
+    [navigation]
+  );
+
+  const renderProfileItem = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        style={styles.profileCard}
+        onPress={() => handleProfilePress(item)}
+      >
+        <Image
+          source={{ uri: item.image || "default-image-url" }}
+          style={styles.profileImage}
+        />
+        <View style={styles.profileInfo}>
+          <Text style={styles.fullName}>
+            {`${item.firstName} ${
+              item.maidenName ? item.maidenName + " " : ""
+            }${item.lastName}`}
+          </Text>
+          <Text style={styles.username}>@{item.username}</Text>
+        </View>
+      </TouchableOpacity>
+    ),
+    [handleProfilePress]
   );
 
   return (
     <View style={styles.container}>
+      {isOffline && <Text style={styles.offlineMessage}>You are offline</Text>}
+
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
+      ) : profiles.length === 0 ? (
+        <Text style={styles.emptyMessage}>No profiles found.</Text>
       ) : (
         <FlatList
           data={profiles}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProfileItem}
           onEndReached={loadMoreProfiles}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.1}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          initialNumToRender={10}
+          windowSize={7}
+          viewabilityConfig={viewabilityConfig.current}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refreshProfiles}
+            />
+          }
           ListFooterComponent={
             loadingMore ? <ActivityIndicator size="small" /> : null
           }
@@ -132,6 +211,19 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 14,
+    color: "gray",
+  },
+  offlineMessage: {
+    textAlign: "center",
+    color: "red",
+    padding: 5,
+    marginBottom: 5,
+    fontWeight: "bold",
+  },
+  emptyMessage: {
+    textAlign: "center",
+    fontSize: 16,
+    marginTop: 20,
     color: "gray",
   },
 });
