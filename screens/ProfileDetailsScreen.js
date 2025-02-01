@@ -9,6 +9,7 @@ import {
   Alert,
   Share,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
@@ -22,12 +23,14 @@ const ProfileDetailScreen = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
   const { background, text, gray } = useThemeColors();
   const { userData } = route.params || {};
 
   useEffect(() => {
     if (!userData) return;
+
     const loadData = async () => {
       try {
         const { users, posts, comments } = await fetchAllData(setLoading);
@@ -37,7 +40,7 @@ const ProfileDetailScreen = ({ route }) => {
         );
         setUserPosts(filteredPosts);
       } catch (error) {
-        Alert.alert("Error", "Failed to load profile data.");
+        setError("Failed to load profile data.");
       }
     };
     loadData();
@@ -86,6 +89,7 @@ const ProfileDetailScreen = ({ route }) => {
           uri: userData.image || "https://www.ankurhalder.in/apple-icon.png",
         }}
         style={styles.profileImage}
+        defaultSource={{ uri: "https://www.ankurhalder.in/apple-icon.png" }}
       />
       <Text style={[styles.name, { color: text }]}>{`${userData.firstName} ${
         userData.maidenName || ""
@@ -120,6 +124,21 @@ const ProfileDetailScreen = ({ route }) => {
       </Text>
     </View>
   );
+
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    loadData();
+  };
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: text }}>{error}</Text>
+        <Button title="Retry" onPress={handleRetry} />
+      </View>
+    );
+  }
 
   if (!userData) {
     return (
@@ -161,6 +180,16 @@ const ProfileDetailScreen = ({ route }) => {
         comments={selectedComments}
         closeModal={() => setModalVisible(false)}
       />
+
+      {/* Follow and Message Buttons */}
+      <View style={styles.actionButtonsContainer}>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionButtonText}>Follow</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionButtonText}>Message</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -217,6 +246,22 @@ const styles = StyleSheet.create({
     backgroundColor: "lightgrey",
     borderRadius: 5,
     marginBottom: 15,
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 15,
+  },
+  actionButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+    width: "40%",
+    alignItems: "center",
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 
