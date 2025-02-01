@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   Image,
-  ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
@@ -16,6 +15,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import fetchAllData from "../functions/fetchAllData";
 import debounce from "lodash.debounce";
 import ProfileDetailScreen from "./ProfileDetailsScreen";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 const LIMIT = 10;
 const Stack = createStackNavigator();
@@ -138,7 +138,7 @@ const ProfileScreen = ({ navigation }) => {
       {isOffline && <Text style={styles.offlineMessage}>You are offline</Text>}
 
       {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
+        <SkeletonLoader count={5} />
       ) : profiles.length === 0 ? (
         <Text style={styles.emptyMessage}>No profiles found.</Text>
       ) : (
@@ -160,7 +160,9 @@ const ProfileScreen = ({ navigation }) => {
             />
           }
           ListFooterComponent={
-            loadingMore ? <ActivityIndicator size="small" /> : null
+            loadingMore ? (
+              <SkeletonLoader count={2} style={{ marginBottom: 10 }} />
+            ) : null
           }
         />
       )}
