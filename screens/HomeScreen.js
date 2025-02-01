@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   FlatList,
@@ -30,16 +30,16 @@ const HomeScreen = () => {
   const limit = 10;
   const navigation = useNavigation();
 
-  useEffect(() => {
-    checkNetworkStatus();
-    loadData();
-  }, []);
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
-  const checkNetworkStatus = async () => {
-    NetInfo.fetch().then((state) => {
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOffline(!state.isConnected);
     });
-  };
+
+    loadData();
+    return () => unsubscribe();
+  }, []);
 
   const loadData = async () => {
     try {
@@ -70,13 +70,18 @@ const HomeScreen = () => {
       const { users, posts, comments } = await fetchAllData(setLoading);
       const processedPosts = processData(users, posts, comments);
 
-      await AsyncStorage.setItem("cachedPosts", JSON.stringify(processedPosts));
-      await AsyncStorage.setItem("lastUpdated", Date.now().toString());
+      await AsyncStorage.multiSet([
+        ["cachedPosts", JSON.stringify(processedPosts)],
+        ["lastUpdated", Date.now().toString()],
+      ]);
 
       setAllPosts(processedPosts);
       setPosts(processedPosts.slice(0, limit));
     } catch (error) {
-      Alert.alert("Error", "Failed to refresh posts.");
+      Alert.alert(
+        "Error",
+        "Failed to refresh posts. Please check your internet connection."
+      );
     } finally {
       setLoading(false);
     }
@@ -84,8 +89,7 @@ const HomeScreen = () => {
 
   const refreshPosts = async () => {
     setRefreshing(true);
-    await AsyncStorage.removeItem("cachedPosts");
-    await AsyncStorage.removeItem("lastUpdated");
+    await AsyncStorage.multiRemove(["cachedPosts", "lastUpdated"]);
     await fetchAndCacheData();
     setRefreshing(false);
   };
@@ -152,7 +156,7 @@ const HomeScreen = () => {
         handleImagePress={handleImagePress}
       />
     ),
-    []
+    [handleLike, openComments, handleShare, handleImagePress]
   );
 
   return (
@@ -167,12 +171,12 @@ const HomeScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           onEndReached={loadMorePosts}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.1}
           removeClippedSubviews={true}
-          maxToRenderPerBatch={8}
-          initialNumToRender={8}
-          windowSize={5}
-          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          maxToRenderPerBatch={10}
+          initialNumToRender={10}
+          windowSize={7}
+          viewabilityConfig={viewabilityConfig.current}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
           }
