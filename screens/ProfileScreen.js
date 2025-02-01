@@ -38,7 +38,7 @@ const ProfileScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState("");
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
-  const { background, text, secondary } = useThemeColors();
+  const { background, text, secondary, inactiveTab } = useThemeColors();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -155,7 +155,7 @@ const ProfileScreen = ({ navigation }) => {
   const renderProfileItem = useCallback(
     ({ item }) => (
       <TouchableOpacity
-        style={[styles.profileCard, { backgroundColor: background }]}
+        style={[styles.profileCard, { backgroundColor: secondary }]}
         onPress={() => handleProfilePress(item)}
       >
         <Image
@@ -173,7 +173,7 @@ const ProfileScreen = ({ navigation }) => {
               searchText
             )}
           </Text>
-          <Text style={[styles.username, { color: secondary }]}>
+          <Text style={[styles.username, { color: inactiveTab }]}>
             {highlightText(`@${item.username}`, searchText)}
           </Text>
         </View>
@@ -191,9 +191,12 @@ const ProfileScreen = ({ navigation }) => {
       )}
 
       <TextInput
-        style={[styles.searchInput, { backgroundColor: background }]}
+        style={[
+          styles.searchInput,
+          { backgroundColor: secondary, color: text },
+        ]}
         placeholder="Search profiles..."
-        placeholderTextColor={secondary}
+        placeholderTextColor={inactiveTab}
         value={searchText}
         onChangeText={handleSearchChange}
       />

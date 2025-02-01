@@ -73,7 +73,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   };
 
   const renderComment = ({ item }) => (
-    <View style={[styles.commentItem, { backgroundColor: background }]}>
+    <View style={[styles.commentItem, { backgroundColor: secondary }]}>
       <View style={styles.userInfo}>
         <TouchableOpacity onPress={() => handleUserPress(item.user)}>
           <Image
@@ -91,7 +91,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
               item?.user?.lastName || "Unknown"}
           </Text>
         </TouchableOpacity>
-        <Text style={[styles.commentTime, { color: secondary }]}>
+        <Text style={[styles.commentTime, { color: text }]}>
           {moment(item.createdAt).fromNow()}
         </Text>
       </View>
@@ -99,12 +99,12 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
       <View style={styles.commentActions}>
         <TouchableOpacity style={styles.actionButton}>
-          <FontAwesome name="thumbs-up" size={16} color={secondary} />
-          <Text style={[styles.actionText, { color: secondary }]}>Like</Text>
+          <FontAwesome name="thumbs-up" size={16} color={text} />
+          <Text style={[styles.actionText, { color: text }]}>Like</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <FontAwesome name="reply" size={16} color={secondary} />
-          <Text style={[styles.actionText, { color: secondary }]}>Reply</Text>
+          <FontAwesome name="reply" size={16} color={text} />
+          <Text style={[styles.actionText, { color: text }]}>Reply</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -136,7 +136,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
                 { borderColor: borderInputField, color: text },
               ]}
               placeholder="Write a comment..."
-              placeholderTextColor={secondary}
+              placeholderTextColor={text}
               value={newComment}
               onChangeText={setNewComment}
               multiline
@@ -169,13 +169,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   commentItem: {
-    marginBottom: 15,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 20,
+    padding: 15,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+    marginHorizontal: 10,
   },
   userInfo: {
     flexDirection: "row",
