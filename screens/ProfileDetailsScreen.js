@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -17,16 +17,16 @@ import CommentModal from "../components/CommentModal";
 import { useThemeColors } from "../theme/ThemeProvider";
 
 const ProfileDetailScreen = ({ route }) => {
-  const [posts, setPosts] = useState([]);
-  const { userData } = route.params || {};
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const navigation = useNavigation();
   const { background, text, secondary } = useThemeColors();
+  const { userData } = route.params || {};
 
   useEffect(() => {
+    if (!userData) return;
     const loadData = async () => {
       try {
         const { users, posts, comments } = await fetchAllData(setLoading);
@@ -42,31 +42,28 @@ const ProfileDetailScreen = ({ route }) => {
     loadData();
   }, [userData]);
 
-  const handleLike = (postId, liked) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const updatedLikes = liked
-            ? post.reactions.likes - 1
-            : post.reactions.likes + 1;
-
-          return {
-            ...post,
-            reactions: {
-              ...post.reactions,
-              likes: updatedLikes,
-            },
-          };
-        }
-        return post;
-      })
+  const handleLike = useCallback((postId, liked) => {
+    setUserPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              reactions: {
+                ...post.reactions,
+                likes: liked
+                  ? post.reactions.likes - 1
+                  : post.reactions.likes + 1,
+              },
+            }
+          : post
+      )
     );
-  };
+  }, []);
 
-  const openComments = (comments) => {
+  const openComments = useCallback((comments) => {
     setSelectedComments(comments);
     setModalVisible(true);
-  };
+  }, []);
 
   const handleShare = (postId) => {
     const postUrl = `https://www.ankurhalder.in/${postId}`;
@@ -76,18 +73,10 @@ const ProfileDetailScreen = ({ route }) => {
   };
 
   const handleImagePress = (userData) => {
-    if (userData.id !== userData.id) {
+    if (userData.id !== route.params?.userData?.id) {
       navigation.navigate("ProfileDetail", { userData });
     }
   };
-
-  if (!userData) {
-    return (
-      <View style={styles.center}>
-        <Text>No User Data Available</Text>
-      </View>
-    );
-  }
 
   const renderProfileHeader = () => (
     <View style={[styles.profileContainer, { backgroundColor: background }]}>
@@ -98,9 +87,9 @@ const ProfileDetailScreen = ({ route }) => {
         style={styles.profileImage}
       />
       <Text style={[styles.name, { color: text }]}>
-        {`${userData.firstName} ${
-          userData.maidenName ? userData.maidenName + " " : ""
-        }${userData.lastName}`}
+        {`${userData.firstName} ${userData.maidenName || ""} ${
+          userData.lastName
+        }`}
       </Text>
       <Text style={[styles.username, { color: secondary }]}>
         @{userData.username}
@@ -122,6 +111,14 @@ const ProfileDetailScreen = ({ route }) => {
       </Text>
     </View>
   );
+
+  if (!userData) {
+    return (
+      <View style={styles.center}>
+        <Text>No User Data Available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
