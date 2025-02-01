@@ -10,6 +10,8 @@ const SettingsScreen = () => {
   const colors = useThemeColors();
   const toggleTheme = useToggleTheme();
 
+  const isDarkMode = colors.background === "#121212";
+
   const animatedContainerStyle = useAnimatedStyle(() => ({
     backgroundColor: withTiming(colors.background, { duration: 500 }),
   }));
@@ -37,10 +39,10 @@ const SettingsScreen = () => {
         ]}
       >
         <Text style={[styles.toggleLabel, { color: colors.text }]}>
-          Dark Mode
+          {isDarkMode ? "Dark Mode" : "Light Mode"}
         </Text>
         <Switch
-          value={colors.background === "#121212"}
+          value={isDarkMode}
           onValueChange={toggleTheme}
           trackColor={{
             false: colors.borderInputField,
