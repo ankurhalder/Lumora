@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Alert,
@@ -11,6 +10,8 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
+
+import SkeletonLoaderForProfile from "../components/SkeletonLoaderForProfile";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
@@ -174,7 +175,7 @@ const ProfileDetailScreen = ({ route }) => {
       </TouchableOpacity>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
+        <SkeletonLoaderForProfile />
       ) : (
         <FlatList
           data={userPosts}
