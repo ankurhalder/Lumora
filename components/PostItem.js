@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/ThemeProvider";
 
@@ -14,13 +21,53 @@ const PostItem = ({
   const { primary, secondary, text, overlay, icon, inactiveTab } =
     useThemeColors();
 
-  const onLikePress = () => {
-    setLiked(!liked);
-    handleLike(item.id, !liked - 1);
+  const onLikePress = async () => {
+    try {
+      await handleLike(item.id, liked ? -1 : 1);
+      setLiked(!liked);
+    } catch (error) {
+      Alert.alert("Error", "There was an issue liking the post.");
+    }
+  };
+
+  const handleCommentPress = () => {
+    try {
+      openComments(item.comments);
+    } catch (error) {
+      Alert.alert("Error", "There was an issue opening the comments.");
+    }
+  };
+
+  const handleSharePress = () => {
+    try {
+      handleShare(item.id);
+    } catch (error) {
+      Alert.alert("Error", "There was an issue sharing the post.");
+    }
   };
 
   return (
     <View style={[styles.postContainer, { backgroundColor: secondary }]}>
+      {/* Save and Report Buttons at the Top */}
+      <View style={styles.topButtonsContainer}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => Alert.alert("Saved", "Post has been saved.")}
+        >
+          <FontAwesome name="bookmark" size={20} color={primary} />
+          <Text style={[styles.actionText, { color: text }]}>Save</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => Alert.alert("Reported", "Post has been reported.")}
+        >
+          <FontAwesome name="exclamation-triangle" size={20} color={primary} />
+          <Text style={[styles.actionText, { color: text }]}>Report</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* User Info and Post Content */}
       <TouchableOpacity
         style={styles.userInfo}
         onPress={() => handleImagePress(item.user)}
@@ -42,6 +89,7 @@ const PostItem = ({
       <Text style={[styles.postTitle, { color: text }]}>{item.title}</Text>
       <Text style={[styles.postBody, { color: inactiveTab }]}>{item.body}</Text>
 
+      {/* Post Actions (Like, Comment, Share) */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.actionButton} onPress={onLikePress}>
           <FontAwesome
@@ -56,7 +104,7 @@ const PostItem = ({
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => openComments(item.comments)}
+          onPress={handleCommentPress}
         >
           <FontAwesome name="comment" size={20} color={primary} />
           <Text style={[styles.actionText, { color: text }]}>
@@ -66,7 +114,7 @@ const PostItem = ({
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => handleShare(item.id)}
+          onPress={handleSharePress}
         >
           <FontAwesome name="share" size={20} color={primary} />
           <Text style={[styles.actionText, { color: text }]}>Share</Text>
@@ -87,6 +135,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
     marginHorizontal: 10,
+  },
+  topButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
   },
   userInfo: {
     flexDirection: "row",
