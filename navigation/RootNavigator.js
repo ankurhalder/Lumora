@@ -16,11 +16,11 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
-import HomeScreen from "../screens/HomeScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import ProfileDetailScreen from "../screens/ProfileDetailsScreen";
-import NotificationsScreen from "../screens/NotificationsScreen";
-import SettingsScreen from "../screens/SettingsScreen";
+import HomeScreen from "../screens/HomeScreen.js";
+import ProfileScreen from "../screens/ProfileScreen.js";
+import ProfileDetailScreen from "../screens/ProfileDetailsScreen.js";
+import NotificationsScreen from "../screens/NotificationsScreen.js";
+import SettingsScreen from "../screens/SettingsScreen.js";
 import { useThemeColors } from "../theme/ThemeProvider.js";
 
 export const navigationRef = createNavigationContainerRef();
