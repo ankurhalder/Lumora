@@ -30,8 +30,7 @@ const ProfileScreen = ({ navigation }) => {
   const [isOffline, setIsOffline] = useState(false);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
-  const { background, text, secondary, borderInputField, primary } =
-    useThemeColors();
+  const { background, text, secondary } = useThemeColors();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {

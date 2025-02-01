@@ -122,7 +122,6 @@ const MainTabs = memo(() => {
           tabBarInactiveTintColor: colors.inactiveTab,
           tabBarStyle: {
             backgroundColor: colors.background,
-
             borderTopColor: colors.cardOutline,
             shadowColor: colors.shadowMedium,
             shadowOffset: { width: 0, height: -2 },
