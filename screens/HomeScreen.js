@@ -38,7 +38,7 @@ const HomeScreen = () => {
     });
 
     loadData();
-    return () => unsubscribe();
+    return unsubscribe;
   }, []);
 
   const loadData = async () => {
@@ -110,19 +110,20 @@ const HomeScreen = () => {
   const handleLike = useCallback(
     debounce((postId, liked) => {
       setPosts((prevPosts) => {
+        const index = prevPosts.findIndex((post) => post.id === postId);
+        if (index === -1) return prevPosts;
+
         const updatedPosts = [...prevPosts];
-        const postIndex = updatedPosts.findIndex((post) => post.id === postId);
-        if (postIndex !== -1) {
-          updatedPosts[postIndex] = {
-            ...updatedPosts[postIndex],
-            reactions: {
-              ...updatedPosts[postIndex].reactions,
-              likes: liked
-                ? updatedPosts[postIndex].reactions.likes + 1
-                : updatedPosts[postIndex].reactions.likes - 1,
-            },
-          };
-        }
+        updatedPosts[index] = {
+          ...updatedPosts[index],
+          reactions: {
+            ...updatedPosts[index].reactions,
+            likes: liked
+              ? updatedPosts[index].reactions.likes + 1
+              : updatedPosts[index].reactions.likes - 1,
+          },
+        };
+
         return updatedPosts;
       });
     }, 300),
