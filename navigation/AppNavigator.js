@@ -15,12 +15,14 @@ import {
   Modal,
   TextInput,
   Pressable,
+  useColorScheme,
 } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ProfileDetailScreen from "../screens/ProfileDetailsScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import { useThemeColors } from "../theme/color.js";
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -29,10 +31,7 @@ const Tab = createMaterialTopTabNavigator();
 
 const ProfileStack = memo(() => (
   <Stack.Navigator
-    screenOptions={{
-      headerShown: false,
-      animationEnabled: true,
-    }}
+    screenOptions={{ headerShown: false, animationEnabled: true }}
   >
     <Stack.Screen name="ProfileMain" component={ProfileScreen} />
     <Stack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
@@ -40,26 +39,20 @@ const ProfileStack = memo(() => (
 ));
 
 const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
+  const colors = useThemeColors();
+
   return (
-    <SafeAreaView style={styles.headerContainer}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Lumora</Text>
+    <SafeAreaView
+      style={[styles.headerContainer, { backgroundColor: colors.background }]}
+    >
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <Text style={[styles.headerText, { color: colors.text }]}>Lumora</Text>
         <View style={styles.iconsContainer}>
-          <TouchableOpacity
-            onPress={onAddPress}
-            accessible
-            accessibilityLabel="Add Post"
-            style={styles.iconButton}
-          >
-            <Ionicons name="add-outline" size={28} color="black" />
+          <TouchableOpacity onPress={onAddPress} style={styles.iconButton}>
+            <Ionicons name="add-outline" size={28} color={colors.icon} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onSearchPress}
-            accessible
-            accessibilityLabel="Search"
-            style={styles.iconButton}
-          >
-            <Ionicons name="search-outline" size={28} color="black" />
+          <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
+            <Ionicons name="search-outline" size={28} color={colors.icon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -67,22 +60,33 @@ const CustomHeader = memo(({ onSearchPress, onAddPress }) => {
   );
 });
 
-const SearchModal = memo(({ visible, onClose }) => (
-  <Modal transparent visible={visible} animationType="fade">
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <TextInput
-          placeholder="Search..."
-          style={styles.searchInput}
-          autoFocus
-        />
-        <Pressable onPress={onClose} style={styles.closeButton}>
-          <Ionicons name="close-outline" size={28} color="black" />
-        </Pressable>
+const SearchModal = memo(({ visible, onClose }) => {
+  const colors = useThemeColors();
+
+  return (
+    <Modal transparent visible={visible} animationType="fade">
+      <View
+        style={[styles.modalContainer, { backgroundColor: colors.overlay }]}
+      >
+        <View
+          style={[
+            styles.modalContent,
+            { backgroundColor: colors.modalBackground },
+          ]}
+        >
+          <TextInput
+            placeholder="Search..."
+            style={[styles.searchInput, { color: colors.text }]}
+            autoFocus
+          />
+          <Pressable onPress={onClose} style={styles.closeButton}>
+            <Ionicons name="close-outline" size={28} color={colors.icon} />
+          </Pressable>
+        </View>
       </View>
-    </View>
-  </Modal>
-));
+    </Modal>
+  );
+});
 
 const tabIcon = (name) => ({
   tabBarIcon: ({ color, size }) => (
@@ -93,6 +97,7 @@ const tabIcon = (name) => ({
 
 const MainTabs = memo(() => {
   const [searchVisible, setSearchVisible] = useState(false);
+  const colors = useThemeColors();
 
   return (
     <>
@@ -104,7 +109,18 @@ const MainTabs = memo(() => {
         visible={searchVisible}
         onClose={() => setSearchVisible(false)}
       />
-      <Tab.Navigator screenOptions={tabScreenOptions}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: colors.text,
+          tabBarInactiveTintColor: colors.inactiveTab,
+          tabBarStyle: { backgroundColor: colors.background, elevation: 5 },
+          tabBarIndicatorStyle: {
+            backgroundColor: colors.text,
+            height: 3,
+            borderRadius: 2,
+          },
+        }}
+      >
         <Tab.Screen
           name="Home"
           component={HomeScreen}
@@ -139,24 +155,11 @@ const RootNavigator = () => (
   </NavigationContainer>
 );
 
-const tabScreenOptions = {
-  tabBarActiveTintColor: "#007bff",
-  tabBarInactiveTintColor: "gray",
-  tabBarLabelStyle: { fontSize: 12, fontWeight: "bold" },
-  tabBarStyle: { backgroundColor: "white", elevation: 5 },
-  tabBarIndicatorStyle: {
-    backgroundColor: "#007bff",
-    height: 3,
-    borderRadius: 2,
-  },
-};
-
 const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: "white",
   },
   header: {
-    backgroundColor: "white",
     paddingVertical: 10,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -164,7 +167,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerText: {
-    color: "#007bff",
     fontSize: 24,
     fontWeight: "bold",
   },
@@ -177,12 +179,10 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "white",
     width: "80%",
     padding: 16,
     borderRadius: 10,
