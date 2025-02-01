@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Switch } from "react-native";
-import { useThemeColors, useToggleTheme } from "../theme/color";
+import { useThemeColors, useToggleTheme } from "../theme/ThemeProvider";
 
 const SettingsScreen = () => {
   const colors = useThemeColors();

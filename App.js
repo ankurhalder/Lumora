@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { StyleSheet, StatusBar } from "react-native";
 import RootNavigator from "./navigation/AppNavigator";
-import { ThemeProvider } from "./theme/color";
+import { ThemeProvider } from "./theme/ThemeProvider";
 export default function App() {
   return (
     <Fragment>

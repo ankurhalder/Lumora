@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated, {
   withTiming,
@@ -28,7 +28,7 @@ const lightTheme = {
   mentionHighlight: "#ffeb3b",
   timestamp: "#6c757d",
   shadowLight: "rgba(0, 0, 0, 0.1)",
-  shadowMedium: "rgba(0, 0, 0, 0.2)",
+  shadowMedium: "rgba(0, 0, 0, 2)",
   shadowDark: "rgba(0, 0, 0, 0.3)",
   tabBarHover: "#e9ecef",
   tabBarActiveBackground: "#f8f9fa",
@@ -69,18 +69,26 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const systemScheme = useColorScheme();
-  const [theme, setTheme] = useState(systemScheme);
+  const [theme, setTheme] = useState(systemScheme || "light");
+  const [isLoading, setIsLoading] = useState(true);
 
   const opacity = useSharedValue(1);
-
   const backgroundColor = useSharedValue(lightTheme.background);
   const textColor = useSharedValue(lightTheme.text);
 
   useEffect(() => {
-    AsyncStorage.getItem("theme").then((storedTheme) => {
-      if (storedTheme) setTheme(storedTheme);
-    });
-  }, []);
+    const loadTheme = async () => {
+      try {
+        const storedTheme = await AsyncStorage.getItem("theme");
+        setTheme(storedTheme || systemScheme || "light");
+      } catch (error) {
+        console.error("Error loading theme:", error);
+      }
+      setIsLoading(false);
+    };
+
+    loadTheme();
+  }, [systemScheme]);
 
   const toggleTheme = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -105,13 +113,23 @@ export const ThemeProvider = ({ children }) => {
     opacity.value = withTiming(1, { duration: 300 });
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity.value,
-      backgroundColor: backgroundColor.value,
-      color: textColor.value,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    backgroundColor: backgroundColor.value,
+    color: textColor.value,
+  }));
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor:
+            theme === "dark" ? darkTheme.background : lightTheme.background,
+        }}
+      />
+    );
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

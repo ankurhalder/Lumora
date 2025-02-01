@@ -22,7 +22,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import ProfileDetailScreen from "../screens/ProfileDetailsScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import { useThemeColors } from "../theme/color.js";
+import { useThemeColors } from "../theme/ThemeProvider.js";
 
 export const navigationRef = createNavigationContainerRef();
 
