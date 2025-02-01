@@ -48,7 +48,6 @@ const PostItem = ({
 
   return (
     <View style={[styles.postContainer, { backgroundColor: secondary }]}>
-      {/* Save and Report Buttons at the Top */}
       <View style={styles.topButtonsContainer}>
         <TouchableOpacity
           style={styles.actionButton}
@@ -67,7 +66,6 @@ const PostItem = ({
         </TouchableOpacity>
       </View>
 
-      {/* User Info and Post Content */}
       <TouchableOpacity
         style={styles.userInfo}
         onPress={() => handleImagePress(item.user)}
@@ -89,7 +87,6 @@ const PostItem = ({
       <Text style={[styles.postTitle, { color: text }]}>{item.title}</Text>
       <Text style={[styles.postBody, { color: inactiveTab }]}>{item.body}</Text>
 
-      {/* Post Actions (Like, Comment, Share) */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.actionButton} onPress={onLikePress}>
           <FontAwesome
