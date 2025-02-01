@@ -1,13 +1,11 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Animated, { withTiming, useSharedValue } from "react-native-reanimated";
+import Animated, {
+  withTiming,
+  useSharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 const lightTheme = {
   background: "#ffffff",
@@ -72,7 +70,11 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const systemScheme = useColorScheme();
   const [theme, setTheme] = useState(systemScheme);
+
   const opacity = useSharedValue(1);
+
+  const backgroundColor = useSharedValue(lightTheme.background);
+  const textColor = useSharedValue(lightTheme.text);
 
   useEffect(() => {
     AsyncStorage.getItem("theme").then((storedTheme) => {
@@ -88,12 +90,34 @@ export const ThemeProvider = ({ children }) => {
     setTheme(newTheme);
     await AsyncStorage.setItem("theme", newTheme);
 
+    if (newTheme === "dark") {
+      backgroundColor.value = withTiming(darkTheme.background, {
+        duration: 300,
+      });
+      textColor.value = withTiming(darkTheme.text, { duration: 300 });
+    } else {
+      backgroundColor.value = withTiming(lightTheme.background, {
+        duration: 300,
+      });
+      textColor.value = withTiming(lightTheme.text, { duration: 300 });
+    }
+
     opacity.value = withTiming(1, { duration: 300 });
   };
 
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+      backgroundColor: backgroundColor.value,
+      color: textColor.value,
+    };
+  });
+
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <Animated.View style={{ flex: 1, opacity }}>{children}</Animated.View>
+      <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+        {children}
+      </Animated.View>
     </ThemeContext.Provider>
   );
 };
