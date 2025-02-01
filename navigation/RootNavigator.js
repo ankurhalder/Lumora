@@ -33,7 +33,7 @@ const ProfileStack = memo(() => (
     screenOptions={{ headerShown: false, animationEnabled: true }}
   >
     <Stack.Screen
-      name="ProfileMain"
+      name="ProfileHome"
       component={ProfileScreen}
       options={{ headerShown: false }}
     />
@@ -166,7 +166,7 @@ const RootNavigator = () => (
   <NavigationContainer ref={navigationRef}>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
-        name="ProfileMain"
+        name="MainTabsScreen"
         component={MainTabs}
         options={{ headerShown: false }}
       />
