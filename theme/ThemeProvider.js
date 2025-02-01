@@ -15,7 +15,7 @@ const lightTheme = {
   icon: "black",
   inactiveTab: "gray",
   primary: "#007bff",
-  secondary: "#6c757d",
+  secondary: "#e9ecef",
   success: "#28a745",
   warning: "#ffc107",
   error: "#dc3545",

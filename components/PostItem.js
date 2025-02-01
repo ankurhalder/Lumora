@@ -18,8 +18,7 @@ const PostItem = ({
   handleImagePress,
 }) => {
   const [liked, setLiked] = useState(false);
-  const { primary, secondary, text, overlay, icon, inactiveTab } =
-    useThemeColors();
+  const { primary, secondary, text, icon, inactiveTab } = useThemeColors();
 
   const onLikePress = async () => {
     try {
