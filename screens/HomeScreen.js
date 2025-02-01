@@ -8,6 +8,7 @@ import {
   Share,
   Text,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
@@ -19,7 +20,6 @@ const HomeScreen = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const limit = 10;
@@ -28,15 +28,40 @@ const HomeScreen = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const { users, posts, comments } = await fetchAllData(setLoading);
-        const processedPosts = processData(users, posts, comments);
-        setAllPosts(processedPosts);
-        setPosts(processedPosts.slice(0, limit));
+        const storedData = await AsyncStorage.getItem("cachedPosts");
+
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          setAllPosts(parsedData);
+          setPosts(parsedData.slice(0, limit));
+          setLoading(false);
+        } else {
+          const { users, posts, comments } = await fetchAllData(setLoading);
+          const processedPosts = processData(users, posts, comments);
+
+          await AsyncStorage.setItem(
+            "cachedPosts",
+            JSON.stringify(processedPosts)
+          );
+
+          setAllPosts(processedPosts);
+          setPosts(processedPosts.slice(0, limit));
+        }
       } catch (error) {
         Alert.alert("Error", "Failed to load posts. Please try again.");
+        setLoading(false);
       }
     };
+
     loadData();
+  }, []);
+
+  useEffect(() => {
+    const clearStorage = async () => {
+      await AsyncStorage.removeItem("cachedPosts");
+    };
+
+    return clearStorage;
   }, []);
 
   const loadMorePosts = () => {
@@ -48,7 +73,6 @@ const HomeScreen = () => {
         ...prevPosts,
         ...allPosts.slice(prevPosts.length, prevPosts.length + limit),
       ]);
-      setPage((prevPage) => prevPage + 1);
       setLoadingMore(false);
     }, 1000);
   };
@@ -108,6 +132,14 @@ const HomeScreen = () => {
           )}
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.5}
+          getItemLayout={(data, index) => ({
+            length: 120,
+            offset: 120 * index,
+            index,
+          })}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           ListFooterComponent={
             loadingMore ? (
               <View style={styles.footer}>
@@ -116,12 +148,6 @@ const HomeScreen = () => {
               </View>
             ) : null
           }
-          initialNumToRender={10}
-          getItemLayout={(data, index) => ({
-            length: 100,
-            offset: 100 * index,
-            index,
-          })}
         />
       )}
 
