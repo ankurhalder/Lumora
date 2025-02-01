@@ -16,6 +16,7 @@ import fetchAllData from "../functions/fetchAllData";
 import debounce from "lodash.debounce";
 import ProfileDetailScreen from "./ProfileDetailsScreen";
 import SkeletonLoader from "../components/SkeletonLoader";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const LIMIT = 10;
 const Stack = createStackNavigator();
@@ -28,6 +29,9 @@ const ProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
+
+  const { background, text, secondary, borderInputField, primary } =
+    useThemeColors();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -113,7 +117,7 @@ const ProfileScreen = ({ navigation }) => {
   const renderProfileItem = useCallback(
     ({ item }) => (
       <TouchableOpacity
-        style={styles.profileCard}
+        style={[styles.profileCard, { backgroundColor: background }]}
         onPress={() => handleProfilePress(item)}
       >
         <Image
@@ -121,26 +125,34 @@ const ProfileScreen = ({ navigation }) => {
           style={styles.profileImage}
         />
         <View style={styles.profileInfo}>
-          <Text style={styles.fullName}>
+          <Text style={[styles.fullName, { color: text }]}>
             {`${item.firstName} ${
               item.maidenName ? item.maidenName + " " : ""
             }${item.lastName}`}
           </Text>
-          <Text style={styles.username}>@{item.username}</Text>
+          <Text style={[styles.username, { color: secondary }]}>
+            @{item.username}
+          </Text>
         </View>
       </TouchableOpacity>
     ),
-    [handleProfilePress]
+    [handleProfilePress, background, text, secondary]
   );
 
   return (
-    <View style={styles.container}>
-      {isOffline && <Text style={styles.offlineMessage}>You are offline</Text>}
+    <View style={[styles.container, { backgroundColor: background }]}>
+      {isOffline && (
+        <Text style={[styles.offlineMessage, { color: secondary }]}>
+          You are offline
+        </Text>
+      )}
 
       {loading ? (
         <SkeletonLoader count={5} />
       ) : profiles.length === 0 ? (
-        <Text style={styles.emptyMessage}>No profiles found.</Text>
+        <Text style={[styles.emptyMessage, { color: secondary }]}>
+          No profiles found.
+        </Text>
       ) : (
         <FlatList
           data={profiles}
@@ -182,13 +194,11 @@ export default ProfileStackNavigator;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
     padding: 10,
   },
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     padding: 15,
     marginVertical: 8,
     borderRadius: 10,
@@ -213,11 +223,9 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 14,
-    color: "gray",
   },
   offlineMessage: {
     textAlign: "center",
-    color: "red",
     padding: 5,
     marginBottom: 5,
     fontWeight: "bold",
@@ -226,6 +234,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     marginTop: 20,
-    color: "gray",
   },
 });

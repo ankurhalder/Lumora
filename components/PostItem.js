@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const PostItem = ({
   item,
@@ -10,6 +11,8 @@ const PostItem = ({
   handleImagePress,
 }) => {
   const [liked, setLiked] = useState(false);
+  const { primary, secondary, text, overlay, icon, inactiveTab } =
+    useThemeColors();
 
   const onLikePress = () => {
     setLiked(!liked);
@@ -17,7 +20,7 @@ const PostItem = ({
   };
 
   return (
-    <View style={styles.postContainer}>
+    <View style={[styles.postContainer, { backgroundColor: secondary }]}>
       <TouchableOpacity
         style={styles.userInfo}
         onPress={() => handleImagePress(item.user)}
@@ -28,7 +31,7 @@ const PostItem = ({
           }}
           style={styles.userImage}
         />
-        <Text style={styles.username}>
+        <Text style={[styles.username, { color: text }]}>
           {item?.user?.firstName +
             " " +
             (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
@@ -36,17 +39,17 @@ const PostItem = ({
         </Text>
       </TouchableOpacity>
 
-      <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.postBody}>{item.body}</Text>
+      <Text style={[styles.postTitle, { color: text }]}>{item.title}</Text>
+      <Text style={[styles.postBody, { color: inactiveTab }]}>{item.body}</Text>
 
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.actionButton} onPress={onLikePress}>
           <FontAwesome
             name="thumbs-up"
             size={20}
-            color={liked ? "blue" : "gray"}
+            color={liked ? primary : icon}
           />
-          <Text style={styles.actionText}>
+          <Text style={[styles.actionText, { color: text }]}>
             {item.reactions.likes + (liked ? 1 : 0)} Likes
           </Text>
         </TouchableOpacity>
@@ -55,16 +58,18 @@ const PostItem = ({
           style={styles.actionButton}
           onPress={() => openComments(item.comments)}
         >
-          <FontAwesome name="comment" size={20} color="green" />
-          <Text style={styles.actionText}>{item.comments.length} Comments</Text>
+          <FontAwesome name="comment" size={20} color={primary} />
+          <Text style={[styles.actionText, { color: text }]}>
+            {item.comments.length} Comments
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => handleShare(item.id)}
         >
-          <FontAwesome name="share" size={20} color="purple" />
-          <Text style={styles.actionText}>Share</Text>
+          <FontAwesome name="share" size={20} color={primary} />
+          <Text style={[styles.actionText, { color: text }]}>Share</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -74,51 +79,52 @@ const PostItem = ({
 const styles = StyleSheet.create({
   postContainer: {
     marginBottom: 20,
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 1,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+    marginHorizontal: 10,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 5,
+    marginBottom: 10,
   },
   userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    marginRight: 12,
   },
   username: {
     fontWeight: "bold",
+    fontSize: 16,
   },
   postTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginTop: 5,
+    marginTop: 10,
   },
   postBody: {
-    fontSize: 14,
-    color: "gray",
-    marginTop: 5,
+    fontSize: 15,
+    marginTop: 8,
   },
   actionsContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+    justifyContent: "space-evenly",
+    marginTop: 15,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
   },
   actionText: {
-    marginLeft: 5,
+    marginLeft: 6,
     fontSize: 14,
+    fontWeight: "500",
   },
 });
 

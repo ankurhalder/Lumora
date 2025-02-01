@@ -9,17 +9,19 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-
 import { useNavigation } from "@react-navigation/native";
-
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment";
 import { fetchUserById } from "../functions/fetchUserById";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
   const [commentsWithUserData, setCommentsWithUserData] = useState([]);
   const navigation = useNavigation();
+  const { background, text, secondary, borderInputField, primary } =
+    useThemeColors();
+
   useEffect(() => {
     const fetchUserImages = async () => {
       try {
@@ -44,7 +46,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   }, [visible, comments]);
 
   const handleNewComment = (commentText) => {
-    alert(` Comment: "${commentText}" added to Post`);
+    alert(`Comment: "${commentText}" added to Post`);
   };
 
   const handlePostComment = () => {
@@ -55,6 +57,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       alert("Please enter a comment.");
     }
   };
+
   const handleUserPress = (user) => {
     if (!user || !user.id) {
       console.error("Invalid user data:", user);
@@ -64,7 +67,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   };
 
   const renderComment = ({ item }) => (
-    <View style={styles.commentItem}>
+    <View style={[styles.commentItem, { backgroundColor: background }]}>
       <View style={styles.userInfo}>
         <TouchableOpacity onPress={() => handleUserPress(item.user)}>
           <Image
@@ -74,27 +77,27 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
             }}
             style={styles.userImage}
           />
-          <Text style={styles.commentUser}>
+          <Text style={[styles.commentUser, { color: text }]}>
             {item?.user?.firstName +
               " " +
               (item?.user?.maidenName ? item?.user?.maidenName + " " : "") +
               item?.user?.lastName || "Unknown"}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.commentTime}>
+        <Text style={[styles.commentTime, { color: secondary }]}>
           {moment(item.createdAt).fromNow()}
         </Text>
       </View>
-      <Text style={styles.commentText}>{item.body}</Text>
+      <Text style={[styles.commentText, { color: text }]}>{item.body}</Text>
 
       <View style={styles.commentActions}>
         <TouchableOpacity style={styles.actionButton}>
-          <FontAwesome name="thumbs-up" size={16} color="gray" />
-          <Text style={styles.actionText}>Like</Text>
+          <FontAwesome name="thumbs-up" size={16} color={secondary} />
+          <Text style={[styles.actionText, { color: secondary }]}>Like</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <FontAwesome name="reply" size={16} color="gray" />
-          <Text style={styles.actionText}>Reply</Text>
+          <FontAwesome name="reply" size={16} color={secondary} />
+          <Text style={[styles.actionText, { color: secondary }]}>Reply</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -102,8 +105,8 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
-      <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>Comments</Text>
+      <View style={[styles.modalContainer, { backgroundColor: background }]}>
+        <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
 
         <FlatList
           data={commentsWithUserData}
@@ -113,14 +116,18 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
 
         <View style={styles.addCommentContainer}>
           <TextInput
-            style={styles.commentInput}
+            style={[
+              styles.commentInput,
+              { borderColor: borderInputField, color: text },
+            ]}
             placeholder="Write a comment..."
+            placeholderTextColor={secondary}
             value={newComment}
             onChangeText={setNewComment}
             multiline
           />
           <TouchableOpacity
-            style={styles.postButton}
+            style={[styles.postButton, { backgroundColor: primary }]}
             onPress={handlePostComment}
           >
             <Text style={styles.postButtonText}>Post</Text>
@@ -139,7 +146,6 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f9f9f9",
   },
   modalTitle: {
     fontSize: 20,
@@ -149,7 +155,6 @@ const styles = StyleSheet.create({
   commentItem: {
     marginBottom: 15,
     padding: 10,
-    backgroundColor: "#fff",
     borderRadius: 5,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -173,7 +178,6 @@ const styles = StyleSheet.create({
   },
   commentTime: {
     fontSize: 12,
-    color: "gray",
     marginLeft: 10,
   },
   commentText: {
@@ -192,7 +196,6 @@ const styles = StyleSheet.create({
   actionText: {
     marginLeft: 5,
     fontSize: 14,
-    color: "gray",
   },
   addCommentContainer: {
     marginTop: 20,
@@ -202,7 +205,6 @@ const styles = StyleSheet.create({
   commentInput: {
     flex: 1,
     height: 40,
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingLeft: 10,
@@ -210,7 +212,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   postButton: {
-    backgroundColor: "#007bff",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,

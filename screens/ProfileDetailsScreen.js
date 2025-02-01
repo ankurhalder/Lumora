@@ -6,12 +6,15 @@ import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
+  Alert,
+  Share,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const ProfileDetailScreen = ({ route }) => {
   const [posts, setPosts] = useState([]);
@@ -21,14 +24,20 @@ const ProfileDetailScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const navigation = useNavigation();
+  const { background, text, secondary } = useThemeColors();
+
   useEffect(() => {
     const loadData = async () => {
-      const { users, posts, comments } = await fetchAllData(setLoading);
-      const processedPosts = processData(users, posts, comments);
-      const filteredPosts = processedPosts.filter(
-        (post) => post.userId === userData.id
-      );
-      setUserPosts(filteredPosts);
+      try {
+        const { users, posts, comments } = await fetchAllData(setLoading);
+        const processedPosts = processData(users, posts, comments);
+        const filteredPosts = processedPosts.filter(
+          (post) => post.userId === userData.id
+        );
+        setUserPosts(filteredPosts);
+      } catch (error) {
+        Alert.alert("Error", "Failed to load profile data.");
+      }
     };
     loadData();
   }, [userData]);
@@ -38,8 +47,8 @@ const ProfileDetailScreen = ({ route }) => {
       prevPosts.map((post) => {
         if (post.id === postId) {
           const updatedLikes = liked
-            ? post.reactions.likes + 0
-            : post.reactions.likes - 0;
+            ? post.reactions.likes - 1
+            : post.reactions.likes + 1;
 
           return {
             ...post,
@@ -61,13 +70,15 @@ const ProfileDetailScreen = ({ route }) => {
 
   const handleShare = (postId) => {
     const postUrl = `https://www.ankurhalder.in/${postId}`;
-
     Share.share({
       message: `Check out this post: ${postUrl}`,
     }).catch((error) => Alert.alert(error.message));
   };
+
   const handleImagePress = (userData) => {
-    navigation.navigate("ProfileDetail", { userData });
+    if (userData.id !== userData.id) {
+      navigation.navigate("ProfileDetail", { userData });
+    }
   };
 
   if (!userData) {
@@ -79,17 +90,21 @@ const ProfileDetailScreen = ({ route }) => {
   }
 
   const renderProfileHeader = () => (
-    <View style={styles.profileContainer}>
+    <View style={[styles.profileContainer, { backgroundColor: background }]}>
       <Image
         source={{
           uri: userData.image || "https://www.ankurhalder.in/apple-icon.png",
         }}
         style={styles.profileImage}
       />
-      <Text style={styles.name}>{`${userData.firstName} ${
-        userData.maidenName ? userData.maidenName + " " : ""
-      }${userData.lastName}`}</Text>
-      <Text style={styles.username}>@{userData.username}</Text>
+      <Text style={[styles.name, { color: text }]}>
+        {`${userData.firstName} ${
+          userData.maidenName ? userData.maidenName + " " : ""
+        }${userData.lastName}`}
+      </Text>
+      <Text style={[styles.username, { color: secondary }]}>
+        @{userData.username}
+      </Text>
       <Text>Email: {userData.email}</Text>
       <Text>Phone: {userData.phone}</Text>
       <Text>Age: {userData.age}</Text>
@@ -102,11 +117,14 @@ const ProfileDetailScreen = ({ route }) => {
         Address: {userData.address?.address}, {userData.address?.city},{" "}
         {userData.address?.state}, {userData.address?.country}
       </Text>
-      <Text style={styles.sectionTitle}>Posts by {userData.firstName}</Text>
+      <Text style={[styles.sectionTitle, { color: text }]}>
+        Posts by {userData.firstName}
+      </Text>
     </View>
   );
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: background }]}>
       {loading ? (
         <ActivityIndicator size="large" color="#007bff" />
       ) : (

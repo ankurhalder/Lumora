@@ -1,8 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, StyleSheet } from "react-native";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const SkeletonLoader = ({ count = 5 }) => {
   const fadeAnim = useRef(new Animated.Value(0.6)).current;
+  const { secondary, background, borderInputField, inactiveTab } =
+    useThemeColors();
 
   useEffect(() => {
     Animated.loop(
@@ -26,18 +29,40 @@ const SkeletonLoader = ({ count = 5 }) => {
       {[...Array(count)].map((_, index) => (
         <Animated.View
           key={index}
-          style={[styles.skeletonPost, { opacity: fadeAnim }]}
+          style={[
+            styles.skeletonPost,
+            { opacity: fadeAnim, backgroundColor: secondary },
+          ]}
         >
           <View style={styles.header}>
-            <View style={styles.skeletonProfile} />
+            <View
+              style={[styles.skeletonProfile, { backgroundColor: inactiveTab }]}
+            />
             <View style={styles.skeletonTextContainer}>
-              <View style={styles.skeletonName} />
-              <View style={styles.skeletonTimestamp} />
+              <View
+                style={[styles.skeletonName, { backgroundColor: inactiveTab }]}
+              />
+              <View
+                style={[
+                  styles.skeletonTimestamp,
+                  { backgroundColor: inactiveTab },
+                ]}
+              />
             </View>
           </View>
 
-          <View style={styles.skeletonPostContent} />
-          <View style={[styles.skeletonPostContent, { width: "70%" }]} />
+          <View
+            style={[
+              styles.skeletonPostContent,
+              { backgroundColor: inactiveTab },
+            ]}
+          />
+          <View
+            style={[
+              styles.skeletonPostContent,
+              { width: "70%", backgroundColor: inactiveTab },
+            ]}
+          />
         </Animated.View>
       ))}
     </View>
@@ -49,10 +74,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   skeletonPost: {
-    backgroundColor: "#f0f0f0",
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   header: {
     flexDirection: "row",
@@ -63,7 +92,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#ddd",
   },
   skeletonTextContainer: {
     marginLeft: 10,
@@ -71,20 +99,17 @@ const styles = StyleSheet.create({
   skeletonName: {
     width: 100,
     height: 12,
-    backgroundColor: "#ddd",
     borderRadius: 4,
   },
   skeletonTimestamp: {
     width: 60,
     height: 10,
-    backgroundColor: "#ddd",
     marginTop: 5,
     borderRadius: 4,
   },
   skeletonPostContent: {
     width: "100%",
     height: 12,
-    backgroundColor: "#ddd",
     marginTop: 10,
     borderRadius: 4,
   },
