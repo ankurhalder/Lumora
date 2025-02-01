@@ -17,7 +17,7 @@ import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
 import CommentModal from "../components/CommentModal";
 import { useThemeColors } from "../theme/ThemeProvider";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Importing the icon
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const ProfileDetailScreen = ({ route }) => {
   const [userPosts, setUserPosts] = useState([]);
@@ -70,7 +70,6 @@ const ProfileDetailScreen = ({ route }) => {
     setModalVisible(true);
   }, []);
 
-  // Social Sharing Enhancements: Share the entire profile
   const handleProfileShare = () => {
     const profileUrl = `https://www.ankurhalder.in/${userData.id}`;
     const message = `
@@ -139,9 +138,6 @@ const ProfileDetailScreen = ({ route }) => {
           {userData.address?.state}, {userData.address?.country}
         </Text>
       </View>
-      <Text style={[styles.sectionTitle, { color: text }]}>
-        Posts by {userData.firstName}
-      </Text>
     </View>
   );
 
@@ -170,7 +166,6 @@ const ProfileDetailScreen = ({ route }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
-      {/* Back Button with Icon */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -178,10 +173,27 @@ const ProfileDetailScreen = ({ route }) => {
         <Icon name="arrow-back" size={24} color={text} />
       </TouchableOpacity>
 
-      {/* Show share, follow, and message buttons only after loading is complete */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#007bff" />
+      ) : (
+        <FlatList
+          data={userPosts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <PostItem
+              item={item}
+              handleLike={handleLike}
+              openComments={openComments}
+              handleShare={() => handleShare(item.id, item.title, item.body)}
+              handleImagePress={handleImagePress}
+            />
+          )}
+          ListHeaderComponent={renderProfileHeader}
+        />
+      )}
+
       {!loading && (
         <>
-          {/* Profile Share Button */}
           <TouchableOpacity
             style={styles.shareButton}
             onPress={handleProfileShare}
@@ -189,7 +201,6 @@ const ProfileDetailScreen = ({ route }) => {
             <Text style={styles.shareButtonText}>Share Profile</Text>
           </TouchableOpacity>
 
-          {/* Follow and Message Buttons */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity
               style={styles.actionButton}
@@ -209,25 +220,6 @@ const ProfileDetailScreen = ({ route }) => {
             </TouchableOpacity>
           </View>
         </>
-      )}
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#007bff" />
-      ) : (
-        <FlatList
-          data={userPosts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <PostItem
-              item={item}
-              handleLike={handleLike}
-              openComments={openComments}
-              handleShare={() => handleShare(item.id, item.title, item.body)} // Customizable message
-              handleImagePress={handleImagePress}
-            />
-          )}
-          ListHeaderComponent={renderProfileHeader}
-        />
       )}
 
       <CommentModal
