@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import {
   View,
   Text,
@@ -8,6 +14,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Alert,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
@@ -28,6 +35,7 @@ const ProfileScreen = ({ navigation }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   const { background, text, secondary } = useThemeColors();
@@ -113,6 +121,37 @@ const ProfileScreen = ({ navigation }) => {
     [navigation]
   );
 
+  const handleSearchChange = (text) => {
+    setSearchText(text);
+  };
+
+  const filteredProfiles = useMemo(() => {
+    if (!searchText) return profiles;
+
+    return profiles.filter((profile) =>
+      `${profile.firstName} ${profile.lastName} ${profile.username}`
+        .toLowerCase()
+        .includes(searchText.toLowerCase())
+    );
+  }, [searchText, profiles]);
+
+  const highlightText = (text, searchText) => {
+    if (!searchText) return text;
+
+    const regex = new RegExp(`(${searchText})`, "gi");
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      part.toLowerCase() === searchText.toLowerCase() ? (
+        <Text key={index} style={{ backgroundColor: "yellow" }}>
+          {part}
+        </Text>
+      ) : (
+        part
+      )
+    );
+  };
+
   const renderProfileItem = useCallback(
     ({ item }) => (
       <TouchableOpacity
@@ -125,17 +164,20 @@ const ProfileScreen = ({ navigation }) => {
         />
         <View style={styles.profileInfo}>
           <Text style={[styles.fullName, { color: text }]}>
-            {`${item.firstName} ${
-              item.maidenName ? item.maidenName + " " : ""
-            }${item.lastName}`}
+            {highlightText(
+              `${item.firstName} ${
+                item.maidenName ? item.maidenName + " " : ""
+              }${item.lastName}`,
+              searchText
+            )}
           </Text>
           <Text style={[styles.username, { color: secondary }]}>
-            @{item.username}
+            {highlightText(`@${item.username}`, searchText)}
           </Text>
         </View>
       </TouchableOpacity>
     ),
-    [handleProfilePress, background, text, secondary]
+    [handleProfilePress, background, text, secondary, searchText]
   );
 
   return (
@@ -146,15 +188,23 @@ const ProfileScreen = ({ navigation }) => {
         </Text>
       )}
 
+      <TextInput
+        style={[styles.searchInput, { backgroundColor: background }]}
+        placeholder="Search profiles..."
+        placeholderTextColor={secondary}
+        value={searchText}
+        onChangeText={handleSearchChange}
+      />
+
       {loading ? (
         <SkeletonLoader count={5} />
-      ) : profiles.length === 0 ? (
+      ) : filteredProfiles.length === 0 ? (
         <Text style={[styles.emptyMessage, { color: secondary }]}>
           No profiles found.
         </Text>
       ) : (
         <FlatList
-          data={profiles}
+          data={filteredProfiles}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProfileItem}
           onEndReached={loadMoreProfiles}
@@ -243,5 +293,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     marginTop: 20,
+  },
+  searchInput: {
+    height: 40,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+    fontSize: 16,
   },
 });
