@@ -1,34 +1,28 @@
 import React from "react";
-import { View, Text, StyleSheet, Switch } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import { useThemeColors, useToggleTheme } from "../theme/ThemeProvider";
+import ToggleSwitch from "../components/ToggleSwitch";
 
 const SettingsScreen = () => {
   const colors = useThemeColors();
   const toggleTheme = useToggleTheme();
-
   const isDarkMode = colors.background === "#121212";
-
-  const duration = 500;
-
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: withTiming(colors.background, { duration }),
+    backgroundColor: withTiming(colors.background, { duration: 500 }),
   }));
-
   const animatedTextStyle = useAnimatedStyle(() => ({
-    color: withTiming(colors.text, { duration }),
+    color: withTiming(colors.text, { duration: 500 }),
   }));
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
       <Animated.Text style={[styles.text, animatedTextStyle]}>
         Settings
       </Animated.Text>
-
       <View style={styles.spacer} />
-
       <View
         style={[
           styles.toggleContainer,
@@ -42,14 +36,14 @@ const SettingsScreen = () => {
         <Text style={[styles.toggleLabel, { color: colors.text }]}>
           {isDarkMode ? "Dark Mode" : "Light Mode"}
         </Text>
-        <Switch
-          value={isDarkMode}
-          onValueChange={toggleTheme}
-          trackColor={{
-            false: colors.borderInputField,
-            true: colors.primary,
-          }}
-          thumbColor={"#007bff"}
+        <ToggleSwitch
+          isOn={isDarkMode}
+          onToggle={toggleTheme}
+          trackColor={isDarkMode ? colors.primary : colors.borderInputField}
+          thumbColor={colors.icon}
+          width={60}
+          height={30}
+          springConfig={{ stiffness: 350, damping: 20, mass: 1 }}
         />
       </View>
     </Animated.View>
@@ -77,9 +71,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 25,
     borderWidth: 1,
-    borderRadius: 15,
+    borderRadius: 20,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
     marginBottom: 30,
