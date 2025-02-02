@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 import SkeletonLoaderForProfile from "../components/SkeletonLoaderForProfile";
-
+import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
@@ -29,6 +29,7 @@ const ProfileDetailScreen = ({ route }) => {
 
   const { background, text, gray } = useThemeColors();
   const { userData } = route.params || {};
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (!userData) return;
