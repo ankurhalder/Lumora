@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-
 import SkeletonLoaderForProfile from "../components/SkeletonLoaderForProfile";
 import { useNavigation } from "@react-navigation/native";
 import fetchAllData from "../functions/fetchAllData";
@@ -26,14 +25,14 @@ const ProfileDetailScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const [error, setError] = useState(null);
-
-  const { background, text, gray } = useThemeColors();
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const { background, text, gray, primary } = useThemeColors();
   const { userData } = route.params || {};
   const navigation = useNavigation();
+  const flatListRef = useRef(null);
 
   useEffect(() => {
     if (!userData) return;
-
     const loadData = async () => {
       try {
         const { users, posts, comments } = await fetchAllData(setLoading);
@@ -42,7 +41,7 @@ const ProfileDetailScreen = ({ route }) => {
           (post) => post.userId === userData.id
         );
         setUserPosts(filteredPosts);
-      } catch (error) {
+      } catch (err) {
         setError("Failed to load profile data.");
       }
     };
@@ -88,10 +87,8 @@ const ProfileDetailScreen = ({ route }) => {
       Address: ${userData.address?.address}, ${userData.address?.city}, ${
       userData.address?.state
     }, ${userData.address?.country}
-
       Profile Link: ${profileUrl}
     `;
-
     Share.share({
       message: message,
     }).catch((error) => Alert.alert("Share Error", error.message));
@@ -182,6 +179,7 @@ const ProfileDetailScreen = ({ route }) => {
     setLoading(true);
     loadData();
   };
+
   const handleShare = async (item) => {
     try {
       const postUrl = `https://www.ankurhalder.in/${item.id}`;
@@ -198,6 +196,21 @@ const ProfileDetailScreen = ({ route }) => {
       await Share.share({ message });
     } catch (error) {
       Alert.alert("Error", error.message);
+    }
+  };
+
+  const onScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY > 300) {
+      setShowScrollToTop(true);
+    } else {
+      setShowScrollToTop(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   };
 
@@ -226,11 +239,11 @@ const ProfileDetailScreen = ({ route }) => {
       >
         <Icon name="arrow-back" size={24} color={text} />
       </TouchableOpacity>
-
       {loading ? (
         <SkeletonLoaderForProfile />
       ) : (
         <FlatList
+          ref={flatListRef}
           data={userPosts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
@@ -242,14 +255,23 @@ const ProfileDetailScreen = ({ route }) => {
             />
           )}
           ListHeaderComponent={renderProfileHeader}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
         />
       )}
-
       <CommentModal
         visible={modalVisible}
         comments={selectedComments}
         closeModal={() => setModalVisible(false)}
       />
+      {showScrollToTop && (
+        <TouchableOpacity
+          style={[styles.scrollToTopButton, { backgroundColor: primary }]}
+          onPress={scrollToTop}
+        >
+          <Icon name="arrow-upward" size={24} color={background} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -307,8 +329,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: 5,
   },
   infoLabel: {
     fontSize: 16,
@@ -352,6 +372,18 @@ const styles = StyleSheet.create({
   shareButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  scrollToTopButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    borderRadius: 25,
+    padding: 12,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
 });
 
