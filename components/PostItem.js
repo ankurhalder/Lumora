@@ -94,7 +94,7 @@ const PostItem = ({
             color={liked ? primary : icon}
           />
           <Text style={[styles.actionText, { color: text }]}>
-            {item.reactions.likes + (liked ? 1 : 0)} Likes
+            {item.reactions.likes} Likes
           </Text>
         </TouchableOpacity>
 

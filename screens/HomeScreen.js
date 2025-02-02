@@ -110,7 +110,7 @@ const HomeScreen = () => {
   };
 
   const handleLike = useCallback(
-    debounce((postId, liked) => {
+    debounce((postId, delta) => {
       setPosts((prevPosts) => {
         const index = prevPosts.findIndex((post) => post.id === postId);
         if (index === -1) return prevPosts;
@@ -120,9 +120,7 @@ const HomeScreen = () => {
           ...updatedPosts[index],
           reactions: {
             ...updatedPosts[index].reactions,
-            likes: liked
-              ? updatedPosts[index].reactions.likes + 1
-              : updatedPosts[index].reactions.likes - 1,
+            likes: updatedPosts[index].reactions.likes + delta,
           },
         };
 
