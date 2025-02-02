@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
 
 import userData from "../data/userData";
@@ -27,6 +28,7 @@ const UserDetailsScreen = () => {
       setLoading(false);
       return;
     }
+
     setTimeout(() => {
       setUserPosts(posts);
       setLoading(false);
@@ -47,10 +49,47 @@ const UserDetailsScreen = () => {
     loadProfileImage();
   }, []);
 
+  const storeNotificationRecord = async (notificationRecord) => {
+    try {
+      const storedRecords = await AsyncStorage.getItem("notifications");
+      const notificationsArray = storedRecords ? JSON.parse(storedRecords) : [];
+      notificationsArray.push(notificationRecord);
+      await AsyncStorage.setItem(
+        "notifications",
+        JSON.stringify(notificationsArray)
+      );
+    } catch (error) {
+      console.error("Error storing notification:", error);
+    }
+  };
+
   const updateProfileImage = async (imageUri) => {
     try {
       await AsyncStorage.setItem("profileImage", imageUri);
       setProfileImage(imageUri);
+
+      const now = new Date();
+      const notificationTime = now.toLocaleTimeString();
+
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== "granted") {
+        await Notifications.requestPermissionsAsync();
+      }
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Profile Image Updated",
+          body: `Your image was updated at ${notificationTime}`,
+        },
+        trigger: null,
+      });
+
+      const notificationRecord = {
+        id: now.getTime(),
+        message: `Your image was updated at ${notificationTime}`,
+        time: now.toISOString(),
+      };
+      storeNotificationRecord(notificationRecord);
     } catch (error) {
       console.error("Error saving profile image:", error);
     }
