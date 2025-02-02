@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   ActivityIndicator,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -20,27 +19,35 @@ const ProfileHeader = ({ user }) => (
     <Image source={{ uri: user.image }} style={styles.profileImage} />
     <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text>
     <Text style={styles.username}>@{user.username}</Text>
+
     <View style={styles.infoContainer}>
-      <Text style={styles.infoText}>Email: {user.email}</Text>
-      <Text style={styles.infoText}>Phone: {user.phone}</Text>
-      <Text style={styles.infoText}>Age: {user.age}</Text>
-      <Text style={styles.infoText}>Gender: {user.gender}</Text>
+      <Text style={styles.infoText}>📧 {user.email}</Text>
+      <Text style={styles.infoText}>📞 {user.phone}</Text>
+      <Text style={styles.infoText}>🎂 Age: {user.age}</Text>
+      <Text style={styles.infoText}>⚧ Gender: {user.gender}</Text>
+
+      <Text style={styles.sectionTitle}>🏢 Work</Text>
       <Text style={styles.infoText}>
-        Occupation: {user.company.title} at {user.company.name} (
-        {user.company.department})
+        {user.company.title} at {user.company.name} ({user.company.department})
       </Text>
+
+      <Text style={styles.sectionTitle}>📍 Address</Text>
       <Text style={styles.infoText}>
-        Address: {user.address.address}, {user.address.city},{" "}
-        {user.address.state}, {user.address.country}
+        {user.address.address}, {user.address.city}, {user.address.state},{" "}
+        {user.address.country}
       </Text>
     </View>
   </View>
 );
 
-const PostItem = ({ item }) => (
+const PostItem = ({ item, onLike }) => (
   <View style={styles.postContainer}>
     <Text style={styles.postTitle}>{item.title}</Text>
     <Text style={styles.postBody}>{item.body}</Text>
+    <TouchableOpacity style={styles.likeButton} onPress={() => onLike(item.id)}>
+      <Icon name="favorite" size={18} color="red" />
+      <Text style={styles.likeText}>{item.reactions.likes}</Text>
+    </TouchableOpacity>
   </View>
 );
 
@@ -61,6 +68,16 @@ const UserDetailsScreen = () => {
     }, 500);
   }, []);
 
+  const handleLike = (postId) => {
+    setUserPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? { ...post, reactions: { likes: post.reactions.likes + 1 } }
+          : post
+      )
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -78,7 +95,7 @@ const UserDetailsScreen = () => {
       <ProfileHeader user={userData} />
 
       {userPosts.map((item) => (
-        <PostItem key={item.id} item={item} />
+        <PostItem key={item.id} item={item} onLike={handleLike} />
       ))}
     </ScrollView>
   );
@@ -93,6 +110,7 @@ const styles = StyleSheet.create({
   username: { fontSize: 16, color: "gray", marginBottom: 10 },
   infoContainer: { alignItems: "center" },
   infoText: { fontSize: 14, marginBottom: 5 },
+  sectionTitle: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
   backButton: { padding: 10 },
   postContainer: {
     marginVertical: 10,
@@ -101,7 +119,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   postTitle: { fontSize: 16, fontWeight: "bold" },
-  postBody: { fontSize: 14, marginTop: 5 },
+  postBody: { fontSize: 14, marginVertical: 5 },
+  likeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  likeText: { fontSize: 14, marginLeft: 5, color: "black" },
 });
 
 export default UserDetailsScreen;
