@@ -6,25 +6,35 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  RefreshControl,
+  TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NotificationsScreen = () => {
   const [notifications, setNotifications] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadNotifications = async () => {
     try {
       const storedNotifications = await AsyncStorage.getItem("notifications");
       if (storedNotifications) {
-        setNotifications(JSON.parse(storedNotifications));
+        const parsed = JSON.parse(storedNotifications);
+        const sorted = parsed.sort(
+          (a, b) => new Date(b.time) - new Date(a.time)
+        );
+        setNotifications(sorted);
       }
-    } catch (error) {
-      console.error("Error loading notifications:", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
     loadNotifications();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadNotifications().then(() => setRefreshing(false));
   }, []);
 
   const clearNotifications = useCallback(() => {
@@ -32,19 +42,14 @@ const NotificationsScreen = () => {
       "Clear Notifications",
       "Are you sure you want to clear all notifications?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Clear",
           onPress: async () => {
             try {
               await AsyncStorage.removeItem("notifications");
               setNotifications([]);
-            } catch (error) {
-              console.error("Error clearing notifications:", error);
-            }
+            } catch (error) {}
           },
           style: "destructive",
         },
@@ -52,13 +57,55 @@ const NotificationsScreen = () => {
     );
   }, []);
 
+  const deleteNotification = async (notificationId) => {
+    Alert.alert(
+      "Delete Notification",
+      "Are you sure you want to delete this notification?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              const updatedNotifications = notifications.filter(
+                (n) => n.id !== notificationId
+              );
+              await AsyncStorage.setItem(
+                "notifications",
+                JSON.stringify(updatedNotifications)
+              );
+              setNotifications(updatedNotifications);
+            } catch (error) {}
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
+  const timeAgo = (timeString) => {
+    const seconds = Math.floor((new Date() - new Date(timeString)) / 1000);
+    let interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return `${interval} hour${interval > 1 ? "s" : ""} ago`;
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1)
+      return `${interval} minute${interval > 1 ? "s" : ""} ago`;
+    return "Just now";
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.notificationItem}>
-      <Text style={styles.notificationText}>{item.message}</Text>
-      <Text style={styles.notificationTime}>
-        {new Date(item.time).toLocaleString()}
-      </Text>
-    </View>
+    <TouchableWithoutFeedback
+      onLongPress={() => deleteNotification(item.id)}
+      accessibilityLabel="Notification item"
+      testID={`notification-item-${item.id}`}
+    >
+      <View style={styles.notificationItem}>
+        <Text style={styles.notificationText}>{item.message}</Text>
+        <Text style={styles.notificationTime}>
+          {timeAgo(item.time)} ({new Date(item.time).toLocaleString()})
+        </Text>
+      </View>
+    </TouchableWithoutFeedback>
   );
 
   return (
@@ -78,6 +125,9 @@ const NotificationsScreen = () => {
           data={notifications}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>

@@ -1,8 +1,9 @@
-import React from "react";
-import { Alert, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 const UpdateUserProfileImage = ({ updateProfileImage }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const handleImageUpdate = () => {
     Alert.alert("Update Profile Picture", "Choose an option", [
       { text: "Camera", onPress: () => pickImage("camera") },
@@ -10,14 +11,15 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
       { text: "Cancel", style: "cancel" },
     ]);
   };
-
   const pickImage = async (mode) => {
     try {
+      setIsLoading(true);
       let result;
       if (mode === "camera") {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
           Alert.alert("Permission Denied", "Camera permission is required!");
+          setIsLoading(false);
           return;
         }
         result = await ImagePicker.launchCameraAsync({
@@ -32,6 +34,7 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
             "Permission Denied",
             "Media library permission is required!"
           );
+          setIsLoading(false);
           return;
         }
         result = await ImagePicker.launchImageLibraryAsync({
@@ -39,25 +42,33 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
           quality: 1,
         });
       }
-
       if (result.canceled) {
+        setIsLoading(false);
         return;
       }
-
       const imageUri = result.assets[0].uri;
-      updateProfileImage(imageUri);
+      await updateProfileImage(imageUri);
     } catch (error) {
-      console.error("Error picking image:", error);
       Alert.alert(
         "Error",
         "There was an error picking the image. Please try again."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
-
   return (
-    <TouchableOpacity onPress={handleImageUpdate}>
-      <Text style={styles.updateText}>Update Profile Image</Text>
+    <TouchableOpacity
+      onPress={handleImageUpdate}
+      disabled={isLoading}
+      accessibilityLabel="Update Profile Image"
+      testID="update-profile-image"
+    >
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#007bff" />
+      ) : (
+        <Text style={styles.updateText}>Update Profile Image</Text>
+      )}
     </TouchableOpacity>
   );
 };
