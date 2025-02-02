@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import UpdateUserProfileImage from "./UpdateUserProfileImage";
 
-const DEFAULT_COVER = "https://via.placeholder.com/300x100";
-const DEFAULT_PROFILE = "https://via.placeholder.com/100";
+const DEFAULT_COVER = "https://www.ankurhalder.in/apple-icon.png";
+const DEFAULT_PROFILE = "https://www.ankurhalder.in/apple-icon.png";
 const ProfileHeader = ({ user, profileImage, updateProfileImage }) => {
   const [coverError, setCoverError] = useState(false);
   const [profileError, setProfileError] = useState(false);
