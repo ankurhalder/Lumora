@@ -87,7 +87,7 @@ const ProfileDetailScreen = ({ route }) => {
       Address: ${userData.address?.address}, ${userData.address?.city}, ${
       userData.address?.state
     }, ${userData.address?.country}
-      
+
       Profile Link: ${profileUrl}
     `;
 
@@ -114,28 +114,30 @@ const ProfileDetailScreen = ({ route }) => {
       <Text style={[styles.name, { color: text }]}>{`${userData.firstName} ${
         userData.maidenName || ""
       } ${userData.lastName}`}</Text>
-      <Text
-        style={[styles.username, { color: gray }]}
-      >{`@${userData.username}`}</Text>
+      <Text style={[styles.username, { color: gray }]}>
+        @{userData.username}
+      </Text>
       <View style={styles.infoContainer}>
         <Text style={[styles.infoText, { color: text }]}>
-          Email: {userData.email}
+          <Icon name="mail" size={18} color={text} /> Email: {userData.email}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          Phone: {userData.phone}
+          <Icon name="phone" size={18} color={text} /> Phone: {userData.phone}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          Age: {userData.age}
+          <Icon name="cake" size={18} color={text} /> Age: {userData.age}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          Gender: {userData.gender}
+          <Icon name="wc" size={18} color={text} /> Gender: {userData.gender}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          Occupation: {userData.company?.title} at {userData.company?.name} (
+          <Icon name="work" size={18} color={text} /> Occupation:{" "}
+          {userData.company?.title} at {userData.company?.name} (
           {userData.company?.department})
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          Address: {userData.address?.address}, {userData.address?.city},{" "}
+          <Icon name="location-on" size={18} color={text} /> Address:{" "}
+          {userData.address?.address}, {userData.address?.city},{" "}
           {userData.address?.state}, {userData.address?.country}
         </Text>
       </View>

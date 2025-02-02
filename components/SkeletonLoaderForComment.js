@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const SkeletonLoaderForComment = ({ count = 3 }) => {
   const opacity = useRef(new Animated.Value(0.3)).current;
+  const themeColors = useThemeColors();
 
   useEffect(() => {
     Animated.loop(
@@ -22,18 +24,44 @@ const SkeletonLoaderForComment = ({ count = 3 }) => {
   }, [opacity]);
 
   const skeletonItems = Array.from({ length: count }, (_, i) => (
-    <Animated.View key={i} style={[styles.skeletonItem, { opacity }]}>
+    <Animated.View
+      key={i}
+      style={[
+        styles.skeletonItem,
+        {
+          opacity,
+          backgroundColor: themeColors.secondary,
+          borderColor: themeColors.cardOutline,
+        },
+      ]}
+    >
       <View style={styles.header}>
-        <View style={styles.avatar} />
+        <View style={[styles.avatar, { backgroundColor: themeColors.icon }]} />
         <View style={styles.headerText}>
-          <View style={styles.usernameLine} />
-          <View style={styles.timeLine} />
+          <View
+            style={[styles.usernameLine, { backgroundColor: themeColors.icon }]}
+          />
+          <View
+            style={[styles.timeLine, { backgroundColor: themeColors.icon }]}
+          />
         </View>
       </View>
       <View style={styles.body}>
-        <View style={styles.textLine} />
-        <View style={[styles.textLine, { width: "80%" }]} />
-        <View style={[styles.textLine, { width: "90%" }]} />
+        <View
+          style={[styles.textLine, { backgroundColor: themeColors.icon }]}
+        />
+        <View
+          style={[
+            styles.textLine,
+            { width: "80%", backgroundColor: themeColors.icon },
+          ]}
+        />
+        <View
+          style={[
+            styles.textLine,
+            { width: "90%", backgroundColor: themeColors.icon },
+          ]}
+        />
       </View>
     </Animated.View>
   ));
@@ -43,7 +71,6 @@ const SkeletonLoaderForComment = ({ count = 3 }) => {
 
 const styles = StyleSheet.create({
   skeletonItem: {
-    backgroundColor: "#E0E0E0",
     padding: 15,
     borderRadius: 12,
     marginBottom: 20,
@@ -58,7 +85,6 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 17.5,
-    backgroundColor: "#C0C0C0",
   },
   headerText: {
     marginLeft: 10,
@@ -67,14 +93,12 @@ const styles = StyleSheet.create({
   usernameLine: {
     height: 10,
     width: "50%",
-    backgroundColor: "#C0C0C0",
     borderRadius: 5,
     marginBottom: 5,
   },
   timeLine: {
     height: 8,
     width: "30%",
-    backgroundColor: "#C0C0C0",
     borderRadius: 5,
   },
   body: {
@@ -83,7 +107,6 @@ const styles = StyleSheet.create({
   textLine: {
     height: 10,
     width: "100%",
-    backgroundColor: "#C0C0C0",
     borderRadius: 5,
     marginBottom: 5,
   },
