@@ -15,43 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useThemeColors } from "../theme/ThemeProvider";
 
 import userData from "../data/userData";
-
-//   id: 1,
-//   firstName: "Ankur",
-//   lastName: "Halder",
-//   username: "ankurhalder",
-//   email: "ankur.halder12345@gmail.com",
-//   phone: "+919748903490",
-//   age: 30,
-//   gender: "Male",
-//   company: {
-//     title: "Software Engineer",
-//     name: "Tech Corp",
-//     department: "Development",
-//   },
-//   address: {
-//     address: "123, Tech Street",
-//     city: "Kolkata",
-//     state: "West Bengal",
-//     country: "India",
-//   },
-//   image: "https://www.ankurhalder.in/apple-icon.png",
-// };
-
-const posts = [
-  {
-    id: 1,
-    title: "My First Post",
-    body: "This is the first post I made. Just testing out the app!",
-    reactions: { likes: 12 },
-  },
-  {
-    id: 2,
-    title: "Learning React Native",
-    body: "React Native is such a powerful framework. Loving the development experience!",
-    reactions: { likes: 22 },
-  },
-];
+import posts from "../data/posts";
 
 const ProfileHeader = ({ user, colors }) => {
   const { background, text, gray } = colors;
