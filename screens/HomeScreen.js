@@ -7,6 +7,7 @@ import {
   Share,
   Text,
   RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
@@ -17,6 +18,7 @@ import CommentModal from "../components/CommentModal";
 import SkeletonLoader from "../components/SkeletonLoader";
 import debounce from "lodash.debounce";
 import { useThemeColors } from "../theme/ThemeProvider";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -27,16 +29,16 @@ const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const [isOffline, setIsOffline] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const limit = 10;
   const colors = useThemeColors();
-
+  const flatListRef = useRef(null);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOffline(!state.isConnected);
     });
-
     loadData();
     return unsubscribe;
   }, []);
@@ -45,7 +47,6 @@ const HomeScreen = () => {
     try {
       const lastUpdated = await AsyncStorage.getItem("lastUpdated");
       const storedData = await AsyncStorage.getItem("cachedPosts");
-
       if (
         storedData &&
         lastUpdated &&
@@ -69,12 +70,10 @@ const HomeScreen = () => {
     try {
       const { users, posts, comments } = await fetchAllData(setLoading);
       const processedPosts = processData(users, posts, comments);
-
       await AsyncStorage.multiSet([
         ["cachedPosts", JSON.stringify(processedPosts)],
         ["lastUpdated", Date.now().toString()],
       ]);
-
       setAllPosts(processedPosts);
       setPosts(processedPosts.slice(0, limit));
     } catch (error) {
@@ -96,7 +95,6 @@ const HomeScreen = () => {
 
   const loadMorePosts = () => {
     if (loadingMore || posts.length >= allPosts.length) return;
-
     setLoadingMore(true);
     setTimeout(() => {
       setPosts((prevPosts) => [
@@ -112,7 +110,6 @@ const HomeScreen = () => {
       setPosts((prevPosts) => {
         const index = prevPosts.findIndex((post) => post.id === postId);
         if (index === -1) return prevPosts;
-
         const updatedPosts = [...prevPosts];
         updatedPosts[index] = {
           ...updatedPosts[index],
@@ -121,7 +118,6 @@ const HomeScreen = () => {
             likes: updatedPosts[index].reactions.likes + delta,
           },
         };
-
         return updatedPosts;
       });
     }, 300),
@@ -163,8 +159,23 @@ const HomeScreen = () => {
         }
       />
     ),
-    [handleLike, openComments, handleShare]
+    [handleLike, openComments, handleShare, posts]
   );
+
+  const handleScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY > 300) {
+      setShowScrollToTop(true);
+    } else {
+      setShowScrollToTop(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -173,11 +184,11 @@ const HomeScreen = () => {
           You are offline
         </Text>
       )}
-
       {loading ? (
         <SkeletonLoader count={5} />
       ) : (
         <FlatList
+          ref={flatListRef}
           data={posts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
@@ -191,6 +202,8 @@ const HomeScreen = () => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
           }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           ListFooterComponent={
             loadingMore ? (
               <SkeletonLoader count={2} style={{ marginBottom: 10 }} />
@@ -198,12 +211,22 @@ const HomeScreen = () => {
           }
         />
       )}
-
       <CommentModal
         visible={modalVisible}
         comments={selectedComments}
         closeModal={() => setModalVisible(false)}
       />
+      {showScrollToTop && (
+        <TouchableOpacity
+          style={[
+            styles.scrollToTopButton,
+            { backgroundColor: colors.primary },
+          ]}
+          onPress={scrollToTop}
+        >
+          <Ionicons name="arrow-up" size={24} color={colors.background} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -218,6 +241,18 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 5,
     fontWeight: "bold",
+  },
+  scrollToTopButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    borderRadius: 25,
+    padding: 12,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
 });
 
