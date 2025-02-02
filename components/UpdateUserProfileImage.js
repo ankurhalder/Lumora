@@ -21,7 +21,7 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
           return;
         }
         result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ["images"],
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
           quality: 1,
         });
       } else {
@@ -35,7 +35,7 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
           return;
         }
         result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ["images"],
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
           quality: 1,
         });
       }

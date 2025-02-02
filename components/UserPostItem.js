@@ -2,14 +2,31 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const UserPostItem = ({ item, onLike }) => (
+const UserPostItem = ({ item, onLike, onComment, onShare }) => (
   <View style={styles.postContainer}>
     <Text style={styles.postTitle}>{item.title}</Text>
     <Text style={styles.postBody}>{item.body}</Text>
-    <TouchableOpacity style={styles.likeButton} onPress={() => onLike(item.id)}>
-      <Icon name="favorite" size={18} color="red" />
-      <Text style={styles.likeText}>{item.reactions.likes}</Text>
-    </TouchableOpacity>
+    <View style={styles.actionsContainer}>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={() => onLike(item.id)}
+      >
+        <Icon name="favorite" size={18} color="red" />
+        <Text style={styles.actionText}>{item.reactions.likes}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={() => onComment && onComment(item)}
+      >
+        <Icon name="comment" size={18} color="#007bff" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={() => onShare && onShare(item)}
+      >
+        <Icon name="share" size={18} color="#007bff" />
+      </TouchableOpacity>
+    </View>
   </View>
 );
 
@@ -22,12 +39,13 @@ const styles = StyleSheet.create({
   },
   postTitle: { fontSize: 16, fontWeight: "bold" },
   postBody: { fontSize: 14, marginVertical: 5 },
-  likeButton: {
+  actionsContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    marginTop: 5,
+    justifyContent: "space-around",
+    marginTop: 10,
   },
-  likeText: { fontSize: 14, marginLeft: 5, color: "black" },
+  actionButton: { flexDirection: "row", alignItems: "center" },
+  actionText: { fontSize: 14, marginLeft: 5, color: "black" },
 });
 
-export default UserPostItem;
+export default React.memo(UserPostItem);

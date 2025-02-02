@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   ActivityIndicator,
-  ScrollView,
+  FlatList,
   StyleSheet,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +21,7 @@ const UserDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -29,10 +31,14 @@ const UserDetailsScreen = () => {
       return;
     }
 
-    setTimeout(() => {
-      setUserPosts(posts);
-      setLoading(false);
-    }, 500);
+    const loadPosts = () => {
+      setTimeout(() => {
+        setUserPosts(posts);
+        setLoading(false);
+      }, 500);
+    };
+
+    loadPosts();
   }, []);
 
   useEffect(() => {
@@ -95,7 +101,7 @@ const UserDetailsScreen = () => {
     }
   };
 
-  const handleLike = (postId) => {
+  const handleLike = useCallback((postId) => {
     setUserPosts((prevPosts) =>
       prevPosts.map((post) =>
         post.id === postId
@@ -103,7 +109,15 @@ const UserDetailsScreen = () => {
           : post
       )
     );
-  };
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setUserPosts(posts);
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   if (loading) {
     return (
@@ -114,26 +128,37 @@ const UserDetailsScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={navigation.goBack}>
-        <Icon name="arrow-back" size={24} color="black" />
-      </TouchableOpacity>
-
-      <ProfileHeader
-        user={userData}
-        profileImage={profileImage}
-        updateProfileImage={updateProfileImage}
-      />
-
-      {userPosts.map((item) => (
-        <UserPostItem key={item.id} item={item} onLike={handleLike} />
-      ))}
-    </ScrollView>
+    <FlatList
+      data={userPosts}
+      keyExtractor={(item) => item.id.toString()}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+      ListHeaderComponent={
+        <>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={navigation.goBack}
+          >
+            <Icon name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <ProfileHeader
+            user={userData}
+            profileImage={profileImage}
+            updateProfileImage={updateProfileImage}
+          />
+        </>
+      }
+      renderItem={({ item }) => (
+        <UserPostItem item={item} onLike={handleLike} />
+      )}
+      contentContainerStyle={styles.container}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15, backgroundColor: "#fff" },
+  container: { padding: 15, backgroundColor: "#fff" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   backButton: { padding: 10 },
 });
