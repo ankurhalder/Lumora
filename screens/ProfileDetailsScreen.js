@@ -117,30 +117,44 @@ const ProfileDetailScreen = ({ route }) => {
       <Text style={[styles.username, { color: gray }]}>
         @{userData.username}
       </Text>
-      <View style={styles.infoContainer}>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="mail" size={18} color="#FF5722" /> Email: {userData.email}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="phone" size={18} color="#4CAF50" /> Phone:{" "}
-          {userData.phone}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="cake" size={18} color="#9C27B0" /> Age: {userData.age}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="wc" size={18} color="#3F51B5" /> Gender: {userData.gender}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="work" size={18} color="#FF9800" /> Occupation:{" "}
-          {userData.company?.title} at {userData.company?.name} (
-          {userData.company?.department})
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="location-on" size={18} color="#F44336" /> Address:{" "}
-          {userData.address?.address}, {userData.address?.city},{" "}
-          {userData.address?.state}, {userData.address?.country}
-        </Text>
+
+      <View
+        style={[
+          styles.infoContainer,
+          { backgroundColor: "#f0f4f7", borderRadius: 10, padding: 15 },
+        ]}
+      >
+        {renderInfoItem("mail", "#FF5722", "Email", userData.email)}
+        {renderInfoItem("phone", "#4CAF50", "Phone", userData.phone)}
+        {renderInfoItem("cake", "#9C27B0", "Age", userData.age)}
+        {renderInfoItem("wc", "#3F51B5", "Gender", userData.gender)}
+        {renderInfoItem(
+          "work",
+          "#FF9800",
+          "Occupation",
+          `${userData.company?.title} at ${userData.company?.name} (${userData.company?.department})`
+        )}
+        {renderInfoItem(
+          "location-on",
+          "#F44336",
+          "Address",
+          `${userData.address?.address}, ${userData.address?.city}, ${userData.address?.state}, ${userData.address?.country}`
+        )}
+      </View>
+    </View>
+  );
+
+  const renderInfoItem = (iconName, iconColor, label, value) => (
+    <View style={styles.infoRow}>
+      <Icon
+        name={iconName}
+        size={22}
+        color={iconColor}
+        style={styles.infoIcon}
+      />
+      <View style={styles.infoTextContainer}>
+        <Text style={styles.infoLabel}>{label}:</Text>
+        <Text style={styles.infoValue}>{value}</Text>
       </View>
     </View>
   );
@@ -261,26 +275,41 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   name: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 5,
   },
   username: {
     fontSize: 18,
     color: "#888",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   infoContainer: {
-    marginVertical: 15,
+    width: "100%",
+    marginTop: 10,
+  },
+  infoRow: {
+    flexDirection: "row",
     alignItems: "flex-start",
+    marginBottom: 15,
   },
-  infoText: {
+  infoIcon: {
+    marginRight: 10,
+    marginTop: 3,
+  },
+  infoTextContainer: {
+    flex: 1,
+  },
+  infoLabel: {
     fontSize: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
     fontWeight: "bold",
-    marginVertical: 10,
+    color: "#333",
+  },
+  infoValue: {
+    fontSize: 16,
+    color: "#555",
+    marginTop: 2,
   },
   backButton: {
     padding: 10,
