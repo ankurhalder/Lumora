@@ -24,6 +24,7 @@ import debounce from "lodash.debounce";
 import ProfileDetailScreen from "./ProfileDetailsScreen";
 import SkeletonLoader from "../components/SkeletonLoader";
 import { useThemeColors } from "../theme/ThemeProvider";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const LIMIT = 10;
 const Stack = createStackNavigator();
@@ -36,15 +37,16 @@ const ProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const flatListRef = useRef(null);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
-
-  const { background, text, secondary, inactiveTab } = useThemeColors();
+  const { background, text, secondary, inactiveTab, primary } =
+    useThemeColors();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOffline(!state.isConnected);
     });
-
     loadProfiles();
     return unsubscribe;
   }, []);
@@ -53,7 +55,6 @@ const ProfileScreen = ({ navigation }) => {
     try {
       const lastUpdated = await AsyncStorage.getItem("lastUpdatedProfiles");
       const storedProfiles = await AsyncStorage.getItem("cachedProfiles");
-
       if (
         storedProfiles &&
         lastUpdated &&
@@ -76,12 +77,10 @@ const ProfileScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const { users } = await fetchAllData(setLoading);
-
       await AsyncStorage.multiSet([
         ["cachedProfiles", JSON.stringify(users)],
         ["lastUpdatedProfiles", Date.now().toString()],
       ]);
-
       setAllProfiles(users);
       setProfiles(users.slice(0, LIMIT));
     } catch (error) {
@@ -103,7 +102,6 @@ const ProfileScreen = ({ navigation }) => {
 
   const loadMoreProfiles = () => {
     if (loadingMore || profiles.length >= allProfiles.length) return;
-
     setLoadingMore(true);
     setTimeout(() => {
       setProfiles((prevProfiles) => [
@@ -127,7 +125,6 @@ const ProfileScreen = ({ navigation }) => {
 
   const filteredProfiles = useMemo(() => {
     if (!searchText) return profiles;
-
     return profiles.filter((profile) =>
       `${profile.firstName} ${profile.lastName} ${profile.username}`
         .toLowerCase()
@@ -137,10 +134,8 @@ const ProfileScreen = ({ navigation }) => {
 
   const highlightText = (text, searchText) => {
     if (!searchText) return text;
-
     const regex = new RegExp(`(${searchText})`, "gi");
     const parts = text.split(regex);
-
     return parts.map((part, index) =>
       part.toLowerCase() === searchText.toLowerCase() ? (
         <Text key={index} style={{ backgroundColor: "yellow" }}>
@@ -179,8 +174,23 @@ const ProfileScreen = ({ navigation }) => {
         </View>
       </TouchableOpacity>
     ),
-    [handleProfilePress, background, text, secondary, searchText]
+    [handleProfilePress, secondary, text, inactiveTab, searchText]
   );
+
+  const handleScroll = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY > 300) {
+      setShowScrollToTop(true);
+    } else {
+      setShowScrollToTop(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
@@ -189,7 +199,6 @@ const ProfileScreen = ({ navigation }) => {
           You are offline
         </Text>
       )}
-
       <TextInput
         style={[
           styles.searchInput,
@@ -200,7 +209,6 @@ const ProfileScreen = ({ navigation }) => {
         value={searchText}
         onChangeText={handleSearchChange}
       />
-
       {loading ? (
         <SkeletonLoader count={5} />
       ) : filteredProfiles.length === 0 ? (
@@ -209,6 +217,7 @@ const ProfileScreen = ({ navigation }) => {
         </Text>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={filteredProfiles}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderProfileItem}
@@ -225,12 +234,22 @@ const ProfileScreen = ({ navigation }) => {
               onRefresh={refreshProfiles}
             />
           }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           ListFooterComponent={
             loadingMore ? (
               <SkeletonLoader count={2} style={{ marginBottom: 10 }} />
             ) : null
           }
         />
+      )}
+      {showScrollToTop && (
+        <TouchableOpacity
+          style={[styles.scrollToTopButton, { backgroundColor: primary }]}
+          onPress={scrollToTop}
+        >
+          <Ionicons name="arrow-up" size={24} color={background} />
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -305,5 +324,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     fontSize: 16,
+  },
+  scrollToTopButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    borderRadius: 25,
+    padding: 12,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
 });
