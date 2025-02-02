@@ -5,15 +5,15 @@ const userData = {
   username: "ankurhalder",
   email: "ankur.halder12345@gmail.com",
   phone: "+919748903490",
-  age: 30,
+  age: 23,
   gender: "Male",
   company: {
     title: "Software Engineer",
-    name: "Tech Corp",
+    name: "Abc",
     department: "Development",
   },
   address: {
-    address: "123, Tech Street",
+    address: "13R,Ishan Ghosh Road",
     city: "Kolkata",
     state: "West Bengal",
     country: "India",
