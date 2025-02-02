@@ -9,7 +9,6 @@ import {
   RefreshControl,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 import NetInfo from "@react-native-community/netinfo";
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
@@ -29,7 +28,6 @@ const HomeScreen = () => {
   const [selectedComments, setSelectedComments] = useState([]);
   const [isOffline, setIsOffline] = useState(false);
   const limit = 10;
-  const navigation = useNavigation();
   const colors = useThemeColors();
 
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
@@ -154,13 +152,6 @@ const HomeScreen = () => {
     }
   };
 
-  const handleImagePress = useCallback(
-    debounce((userData) => {
-      navigation.navigate("ProfileDetail", { userData });
-    }, 300),
-    [navigation]
-  );
-
   const renderItem = useCallback(
     ({ item }) => (
       <PostItem
@@ -170,10 +161,9 @@ const HomeScreen = () => {
         handleShare={() =>
           handleShare(posts.find((post) => post.id === item.id))
         }
-        handleImagePress={handleImagePress}
       />
     ),
-    [handleLike, openComments, handleShare, handleImagePress]
+    [handleLike, openComments, handleShare]
   );
 
   return (

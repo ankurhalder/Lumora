@@ -8,17 +8,13 @@ import {
   Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { useThemeColors } from "../theme/ThemeProvider";
 
-const PostItem = ({
-  item,
-  handleLike,
-  openComments,
-  handleShare,
-  handleImagePress,
-}) => {
+const PostItem = ({ item, handleLike, openComments, handleShare }) => {
   const [liked, setLiked] = useState(false);
   const { primary, secondary, text, icon, inactiveTab } = useThemeColors();
+  const navigation = useNavigation();
 
   const onLikePress = async () => {
     try {
@@ -45,6 +41,10 @@ const PostItem = ({
     }
   };
 
+  const navigateToProfileDetail = () => {
+    navigation.navigate("ProfileDetail", { userData: item.user });
+  };
+
   return (
     <View style={[styles.postContainer, { backgroundColor: secondary }]}>
       <View style={styles.topButtonsContainer}>
@@ -67,7 +67,7 @@ const PostItem = ({
 
       <TouchableOpacity
         style={styles.userInfo}
-        onPress={() => handleImagePress(item.user)}
+        onPress={navigateToProfileDetail}
       >
         <Image
           source={{
