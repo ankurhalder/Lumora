@@ -1,11 +1,11 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import {
   NavigationContainer,
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Ionicons } from "react-native-vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import HomeScreen from "../screens/HomeScreen.js";
 import ProfileScreen from "../screens/ProfileScreen.js";
 import ProfileDetailScreen from "../screens/ProfileDetailsScreen.js";
@@ -46,6 +47,22 @@ const ProfileStack = memo(() => (
 
 const CustomHeader = memo(({ onSearchPress, onAddPress, onProfilePress }) => {
   const colors = useThemeColors();
+  const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(() => {
+    const loadProfileImage = async () => {
+      try {
+        const storedImage = await AsyncStorage.getItem("profileImage");
+        if (storedImage) {
+          setProfileImage(storedImage);
+        }
+      } catch (error) {
+        console.error("Error loading profile image:", error);
+      }
+    };
+
+    loadProfileImage();
+  }, []);
 
   return (
     <SafeAreaView
@@ -62,7 +79,10 @@ const CustomHeader = memo(({ onSearchPress, onAddPress, onProfilePress }) => {
           </TouchableOpacity>
           <TouchableOpacity onPress={onProfilePress} style={styles.iconButton}>
             <Image
-              source={{ uri: "https://www.ankurhalder.in/apple-icon.png" }}
+              source={{
+                uri:
+                  profileImage || "https://www.ankurhalder.in/apple-icon.png",
+              }}
               style={[styles.profileImage, { borderColor: colors.primary }]}
             />
           </TouchableOpacity>
@@ -155,7 +175,6 @@ const RootNavigator = () => (
         component={ProfileDetailScreen}
         options={{ headerShown: false }}
       />
-
       <Stack.Screen
         name="UserDetails"
         component={UserDetailsScreen}
@@ -178,7 +197,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 400,
+    fontWeight: "400",
     textTransform: "uppercase",
     letterSpacing: 2,
   },
