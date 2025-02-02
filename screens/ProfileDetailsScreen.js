@@ -119,24 +119,25 @@ const ProfileDetailScreen = ({ route }) => {
       </Text>
       <View style={styles.infoContainer}>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="mail" size={18} color={text} /> Email: {userData.email}
+          <Icon name="mail" size={18} color="#FF5722" /> Email: {userData.email}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="phone" size={18} color={text} /> Phone: {userData.phone}
+          <Icon name="phone" size={18} color="#4CAF50" /> Phone:{" "}
+          {userData.phone}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="cake" size={18} color={text} /> Age: {userData.age}
+          <Icon name="cake" size={18} color="#9C27B0" /> Age: {userData.age}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="wc" size={18} color={text} /> Gender: {userData.gender}
+          <Icon name="wc" size={18} color="#3F51B5" /> Gender: {userData.gender}
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="work" size={18} color={text} /> Occupation:{" "}
+          <Icon name="work" size={18} color="#FF9800" /> Occupation:{" "}
           {userData.company?.title} at {userData.company?.name} (
           {userData.company?.department})
         </Text>
         <Text style={[styles.infoText, { color: text }]}>
-          <Icon name="location-on" size={18} color={text} /> Address:{" "}
+          <Icon name="location-on" size={18} color="#F44336" /> Address:{" "}
           {userData.address?.address}, {userData.address?.city},{" "}
           {userData.address?.state}, {userData.address?.country}
         </Text>
