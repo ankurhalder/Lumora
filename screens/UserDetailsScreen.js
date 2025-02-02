@@ -14,49 +14,104 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useThemeColors } from "../theme/ThemeProvider";
 
+const userData = {
+  id: 1,
+  firstName: "Ankur",
+  lastName: "Halder",
+  username: "ankurhalder",
+  email: "ankur.halder12345@gmail.com",
+  phone: "+919748903490",
+  age: 30,
+  gender: "Male",
+  company: {
+    title: "Software Engineer",
+    name: "Tech Corp",
+    department: "Development",
+  },
+  address: {
+    address: "123, Tech Street",
+    city: "Kolkata",
+    state: "West Bengal",
+    country: "India",
+  },
+  image: "https://www.ankurhalder.in/apple-icon.png",
+};
+
+const posts = [
+  {
+    id: 1,
+    title: "My First Post",
+    body: "This is the first post I made. Just testing out the app!",
+    reactions: { likes: 12 },
+  },
+  {
+    id: 2,
+    title: "Learning React Native",
+    body: "React Native is such a powerful framework. Loving the development experience!",
+    reactions: { likes: 22 },
+  },
+];
+
+const ProfileHeader = ({ user, colors }) => {
+  const { background, text, gray } = colors;
+  return (
+    <View style={[styles.profileContainer, { backgroundColor: background }]}>
+      <Image source={{ uri: user.image }} style={styles.profileImage} />
+      <Text
+        style={[styles.name, { color: text }]}
+      >{`${user.firstName} ${user.lastName}`}</Text>
+      <Text style={[styles.username, { color: gray }]}>@{user.username}</Text>
+      <View style={styles.infoContainer}>
+        <Text style={[styles.infoText, { color: text }]}>
+          Email: {user.email}
+        </Text>
+        <Text style={[styles.infoText, { color: text }]}>
+          Phone: {user.phone}
+        </Text>
+        <Text style={[styles.infoText, { color: text }]}>Age: {user.age}</Text>
+        <Text style={[styles.infoText, { color: text }]}>
+          Gender: {user.gender}
+        </Text>
+        <Text style={[styles.infoText, { color: text }]}>
+          Occupation: {user.company.title} at {user.company.name} (
+          {user.company.department})
+        </Text>
+        <Text style={[styles.infoText, { color: text }]}>
+          Address: {user.address.address}, {user.address.city},{" "}
+          {user.address.state}, {user.address.country}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const PostItem = ({ item, onLike, onShare }) => (
+  <View style={styles.postContainer}>
+    <Text style={styles.postTitle}>{item.title}</Text>
+    <Text style={styles.postBody}>{item.body}</Text>
+    <View style={styles.postActions}>
+      <TouchableOpacity onPress={() => onLike(item.id)}>
+        <Text style={styles.postActionText}>Like ({item.reactions.likes})</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+          Alert.alert("Comment", "This is where comments would be.")
+        }
+      >
+        <Text style={styles.postActionText}>Comment</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onShare(item.id)}>
+        <Text style={styles.postActionText}>Share</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
+
 const UserDetailsScreen = () => {
   const [loading, setLoading] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
   const navigation = useNavigation();
-  const { background, text, gray } = useThemeColors();
-
-  const userData = {
-    id: 1,
-    firstName: "Ankur",
-    lastName: "Halder",
-    username: "ankurhalder",
-    email: "ankur.halder12345@gmail.com",
-    phone: "+919748903490",
-    age: 30,
-    gender: "Male",
-    company: {
-      title: "Software Engineer",
-      name: "Tech Corp",
-      department: "Development",
-    },
-    address: {
-      address: "123, Tech Street",
-      city: "Kolkata",
-      state: "West Bengal",
-      country: "India",
-    },
-    image: "https://www.ankurhalder.in/apple-icon.png",
-  };
-
-  const posts = [
-    {
-      id: 1,
-      title: "My First Post",
-      body: "This is the first post I made. Just testing out the app!",
-      reactions: { likes: 12 },
-    },
-    {
-      id: 2,
-      title: "Learning React Native",
-      body: "React Native is such a powerful framework. Loving the development experience!",
-      reactions: { likes: 22 },
-    },
-  ];
+  const colors = useThemeColors();
 
   useEffect(() => {
     setLoading(false);
@@ -69,10 +124,7 @@ const UserDetailsScreen = () => {
         post.id === postId
           ? {
               ...post,
-              reactions: {
-                ...post.reactions,
-                likes: post.reactions.likes + 1,
-              },
+              reactions: { ...post.reactions, likes: post.reactions.likes + 1 },
             }
           : post
       )
@@ -81,44 +133,10 @@ const UserDetailsScreen = () => {
 
   const handleShare = (postId) => {
     const postUrl = `https://www.ankurhalder.in/${postId}`;
-    Share.share({
-      message: `Check out this post: ${postUrl}`,
-    }).catch((error) => Alert.alert(error.message));
+    Share.share({ message: `Check out this post: ${postUrl}` }).catch((error) =>
+      Alert.alert(error.message)
+    );
   };
-
-  const renderProfileHeader = () => (
-    <View style={[styles.profileContainer, { backgroundColor: background }]}>
-      <Image source={{ uri: userData.image }} style={styles.profileImage} />
-      <Text
-        style={[styles.name, { color: text }]}
-      >{`${userData.firstName} ${userData.lastName}`}</Text>
-      <Text style={[styles.username, { color: gray }]}>
-        @{userData.username}
-      </Text>
-      <View style={styles.infoContainer}>
-        <Text style={[styles.infoText, { color: text }]}>
-          Email: {userData.email}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          Phone: {userData.phone}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          Age: {userData.age}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          Gender: {userData.gender}
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          Occupation: {userData.company.title} at {userData.company.name} (
-          {userData.company.department})
-        </Text>
-        <Text style={[styles.infoText, { color: text }]}>
-          Address: {userData.address.address}, {userData.address.city},{" "}
-          {userData.address.state}, {userData.address.country}
-        </Text>
-      </View>
-    </View>
-  );
 
   if (loading) {
     return (
@@ -129,15 +147,12 @@ const UserDetailsScreen = () => {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: background }]}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Icon name="arrow-back" size={24} color={text} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <TouchableOpacity style={styles.backButton} onPress={navigation.goBack}>
+        <Icon name="arrow-back" size={24} color={colors.text} />
       </TouchableOpacity>
 
-      {renderProfileHeader()}
+      <ProfileHeader user={userData} colors={colors} />
 
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity
@@ -168,27 +183,7 @@ const UserDetailsScreen = () => {
         data={userPosts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.postContainer}>
-            <Text style={styles.postTitle}>{item.title}</Text>
-            <Text style={styles.postBody}>{item.body}</Text>
-            <View style={styles.postActions}>
-              <TouchableOpacity onPress={() => handleLike(item.id)}>
-                <Text style={styles.postActionText}>
-                  Like ({item.reactions.likes})
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  Alert.alert("Comment", "This is where comments would be.")
-                }
-              >
-                <Text style={styles.postActionText}>Comment</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleShare(item.id)}>
-                <Text style={styles.postActionText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <PostItem item={item} onLike={handleLike} onShare={handleShare} />
         )}
       />
     </View>
@@ -220,23 +215,10 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     marginBottom: 15,
   },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  username: {
-    fontSize: 18,
-    color: "#888",
-    marginBottom: 10,
-  },
-  infoContainer: {
-    marginVertical: 15,
-    alignItems: "flex-start",
-  },
-  infoText: {
-    fontSize: 16,
-  },
+  name: { fontSize: 24, fontWeight: "bold", textAlign: "center" },
+  username: { fontSize: 18, color: "#888", marginBottom: 10 },
+  infoContainer: { marginVertical: 15, alignItems: "flex-start" },
+  infoText: { fontSize: 16 },
   actionButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -249,14 +231,8 @@ const styles = StyleSheet.create({
     width: "30%",
     alignItems: "center",
   },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  backButton: {
-    padding: 10,
-    marginBottom: 15,
-  },
+  actionButtonText: { color: "#fff", fontSize: 16 },
+  backButton: { padding: 10, marginBottom: 15 },
   postContainer: {
     marginBottom: 20,
     padding: 15,
@@ -268,23 +244,10 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  postTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  postBody: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  postActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  postActionText: {
-    fontSize: 16,
-    color: "#007bff",
-  },
+  postTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
+  postBody: { fontSize: 16, marginBottom: 10 },
+  postActions: { flexDirection: "row", justifyContent: "space-between" },
+  postActionText: { fontSize: 16, color: "#007bff" },
 });
 
 export default UserDetailsScreen;
