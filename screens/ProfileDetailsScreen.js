@@ -117,7 +117,24 @@ const ProfileDetailScreen = ({ route }) => {
       <Text style={[styles.username, { color: gray }]}>
         @{userData.username}
       </Text>
-
+      <View style={styles.actionButtonsContainer}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() =>
+            Alert.alert("Followed", "You are now following this user.")
+          }
+        >
+          <Text style={styles.actionButtonText}>Follow</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() =>
+            Alert.alert("Message", "You have sent a message to this user.")
+          }
+        >
+          <Text style={styles.actionButtonText}>Message</Text>
+        </TouchableOpacity>
+      </View>
       <View
         style={[
           styles.infoContainer,
@@ -140,6 +157,12 @@ const ProfileDetailScreen = ({ route }) => {
           "Address",
           `${userData.address?.address}, ${userData.address?.city}, ${userData.address?.state}, ${userData.address?.country}`
         )}
+        <TouchableOpacity
+          style={styles.shareButton}
+          onPress={handleProfileShare}
+        >
+          <Text style={styles.shareButtonText}>Share Profile</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -210,36 +233,6 @@ const ProfileDetailScreen = ({ route }) => {
         />
       )}
 
-      {!loading && (
-        <>
-          <TouchableOpacity
-            style={styles.shareButton}
-            onPress={handleProfileShare}
-          >
-            <Text style={styles.shareButtonText}>Share Profile</Text>
-          </TouchableOpacity>
-
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() =>
-                Alert.alert("Followed", "You are now following this user.")
-              }
-            >
-              <Text style={styles.actionButtonText}>Follow</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() =>
-                Alert.alert("Message", "You have sent a message to this user.")
-              }
-            >
-              <Text style={styles.actionButtonText}>Message</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-
       <CommentModal
         visible={modalVisible}
         comments={selectedComments}
@@ -278,7 +271,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 5,
   },
   username: {
     fontSize: 18,
@@ -318,7 +310,9 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 15,
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 20,
   },
   actionButton: {
     backgroundColor: "#007bff",
