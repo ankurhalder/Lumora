@@ -104,7 +104,10 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
       console.error("Invalid user data:", user);
       return;
     }
-    navigation.navigate("ProfileDetail", { userData: user });
+    closeModal();
+    setTimeout(() => {
+      navigation.navigate("ProfileDetail", { userData: user });
+    }, 300);
   };
 
   const handleClose = () => {

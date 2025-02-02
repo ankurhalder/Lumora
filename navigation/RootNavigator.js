@@ -151,6 +151,12 @@ const RootNavigator = () => (
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="ProfileDetail"
+        component={ProfileDetailScreen}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
         name="UserDetails"
         component={UserDetailsScreen}
         options={{ headerShown: false }}
