@@ -7,38 +7,102 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 
 import userData from "../data/userData";
 import posts from "../data/posts";
 
-const ProfileHeader = ({ user }) => (
-  <View style={styles.profileContainer}>
-    <Image source={{ uri: user.image }} style={styles.profileImage} />
-    <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text>
-    <Text style={styles.username}>@{user.username}</Text>
+const ProfileHeader = ({ user, profileImage, updateProfileImage }) => {
+  const handleImageUpdate = () => {
+    Alert.alert("Update Profile Picture", "Choose an option", [
+      { text: "Camera", onPress: () => pickImage("camera") },
+      { text: "Gallery", onPress: () => pickImage("gallery") },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
 
-    <View style={styles.infoContainer}>
-      <Text style={styles.infoText}>📧 {user.email}</Text>
-      <Text style={styles.infoText}>📞 {user.phone}</Text>
-      <Text style={styles.infoText}>🎂 Age: {user.age}</Text>
-      <Text style={styles.infoText}>⚧ Gender: {user.gender}</Text>
+  const pickImage = async (mode) => {
+    try {
+      let result;
+      if (mode === "camera") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "Camera permission is required!");
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ["images"],
+          quality: 1,
+        });
+      } else {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Denied",
+            "Media library permission is required!"
+          );
+          return;
+        }
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ["images"],
+          quality: 1,
+        });
+      }
 
-      <Text style={styles.sectionTitle}>🏢 Work</Text>
-      <Text style={styles.infoText}>
-        {user.company.title} at {user.company.name} ({user.company.department})
-      </Text>
+      if (result.canceled) {
+        return;
+      }
 
-      <Text style={styles.sectionTitle}>📍 Address</Text>
-      <Text style={styles.infoText}>
-        {user.address.address}, {user.address.city}, {user.address.state},{" "}
-        {user.address.country}
-      </Text>
+      const imageUri = result.assets[0].uri;
+      updateProfileImage(imageUri);
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Alert.alert(
+        "Error",
+        "There was an error picking the image. Please try again."
+      );
+    }
+  };
+
+  return (
+    <View style={styles.profileContainer}>
+      <Image
+        source={{ uri: profileImage ? profileImage : user.image }}
+        style={styles.profileImage}
+      />
+      <TouchableOpacity onPress={handleImageUpdate}>
+        <Text style={styles.updateText}>Update Profile Image</Text>
+      </TouchableOpacity>
+      <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text>
+      <Text style={styles.username}>@{user.username}</Text>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>📧 {user.email}</Text>
+        <Text style={styles.infoText}>📞 {user.phone}</Text>
+        <Text style={styles.infoText}>🎂 Age: {user.age}</Text>
+        <Text style={styles.infoText}>⚧ Gender: {user.gender}</Text>
+
+        <Text style={styles.sectionTitle}>🏢 Work</Text>
+        <Text style={styles.infoText}>
+          {user.company.title} at {user.company.name} ({user.company.department}
+          )
+        </Text>
+
+        <Text style={styles.sectionTitle}>📍 Address</Text>
+        <Text style={styles.infoText}>
+          {user.address.address}, {user.address.city}, {user.address.state},{" "}
+          {user.address.country}
+        </Text>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const PostItem = ({ item, onLike }) => (
   <View style={styles.postContainer}>
@@ -54,6 +118,7 @@ const PostItem = ({ item, onLike }) => (
 const UserDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
+  const [profileImage, setProfileImage] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -67,6 +132,29 @@ const UserDetailsScreen = () => {
       setLoading(false);
     }, 500);
   }, []);
+
+  useEffect(() => {
+    const loadProfileImage = async () => {
+      try {
+        const storedImage = await AsyncStorage.getItem("profileImage");
+        if (storedImage) {
+          setProfileImage(storedImage);
+        }
+      } catch (error) {
+        console.error("Error loading profile image:", error);
+      }
+    };
+    loadProfileImage();
+  }, []);
+
+  const updateProfileImage = async (imageUri) => {
+    try {
+      await AsyncStorage.setItem("profileImage", imageUri);
+      setProfileImage(imageUri);
+    } catch (error) {
+      console.error("Error saving profile image:", error);
+    }
+  };
 
   const handleLike = (postId) => {
     setUserPosts((prevPosts) =>
@@ -92,7 +180,11 @@ const UserDetailsScreen = () => {
         <Icon name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      <ProfileHeader user={userData} />
+      <ProfileHeader
+        user={userData}
+        profileImage={profileImage}
+        updateProfileImage={updateProfileImage}
+      />
 
       {userPosts.map((item) => (
         <PostItem key={item.id} item={item} onLike={handleLike} />
@@ -106,6 +198,12 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   profileContainer: { alignItems: "center", padding: 20 },
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+  updateText: {
+    fontSize: 14,
+    color: "#007bff",
+    marginBottom: 10,
+    textDecorationLine: "underline",
+  },
   name: { fontSize: 20, fontWeight: "bold" },
   username: { fontSize: 16, color: "gray", marginBottom: 10 },
   infoContainer: { alignItems: "center" },
