@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 import SkeletonLoaderForProfile from "../components/SkeletonLoaderForProfile";
-import { useNavigation } from "@react-navigation/native";
+
 import fetchAllData from "../functions/fetchAllData";
 import processData from "../functions/processData";
 import PostItem from "../components/PostItem";
@@ -26,7 +26,7 @@ const ProfileDetailScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
   const [error, setError] = useState(null);
-  const navigation = useNavigation();
+
   const { background, text, gray } = useThemeColors();
   const { userData } = route.params || {};
 
@@ -94,12 +94,6 @@ const ProfileDetailScreen = ({ route }) => {
     Share.share({
       message: message,
     }).catch((error) => Alert.alert("Share Error", error.message));
-  };
-
-  const handleImagePress = (userData) => {
-    if (userData.id !== route.params?.userData?.id) {
-      navigation.navigate("ProfileDetail", { userData });
-    }
   };
 
   const renderProfileHeader = () => (
@@ -244,7 +238,6 @@ const ProfileDetailScreen = ({ route }) => {
               handleLike={handleLike}
               openComments={openComments}
               handleShare={() => handleShare(item)}
-              handleImagePress={handleImagePress}
             />
           )}
           ListHeaderComponent={renderProfileHeader}
