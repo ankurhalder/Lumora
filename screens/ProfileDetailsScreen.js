@@ -304,6 +304,11 @@ const styles = StyleSheet.create({
   },
   infoTextContainer: {
     flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 5,
   },
   infoLabel: {
     fontSize: 16,
