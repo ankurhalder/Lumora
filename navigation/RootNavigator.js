@@ -63,7 +63,7 @@ const CustomHeader = memo(({ onSearchPress, onAddPress, onProfilePress }) => {
           <TouchableOpacity onPress={onProfilePress} style={styles.iconButton}>
             <Image
               source={{ uri: "https://www.ankurhalder.in/apple-icon.png" }}
-              style={styles.profileImage}
+              style={[styles.profileImage, { borderColor: colors.primary }]}
             />
           </TouchableOpacity>
         </View>
@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: "white",
   },
 });
 
