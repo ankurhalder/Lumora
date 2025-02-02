@@ -29,6 +29,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   useEffect(() => {
     const fetchUserImages = async () => {
       try {
+        setLoading(true);
         const updatedComments = await Promise.all(
           comments.map(async (comment) => {
             const user = await fetchUserById(comment.user.id).catch(() => null);
@@ -49,7 +50,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
     if (visible) {
       fetchUserImages();
     }
-  }, [visible, comments]);
+  }, [visible, comments, postId]);
 
   const handleNewComment = (commentText) => {
     alert(`Comment: "${commentText}" added to Post`);
@@ -120,7 +121,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
           <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
 
           {loading ? (
-            <SkeletonLoaderForComment />
+            <SkeletonLoaderForComment count={3} />
           ) : (
             <FlatList
               data={commentsWithUserData}
