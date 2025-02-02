@@ -12,14 +12,15 @@ const SettingsScreen = () => {
 
   const isDarkMode = colors.background === "#121212";
 
+  const duration = 500;
+
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: withTiming(colors.background, { duration: 500 }),
+    backgroundColor: withTiming(colors.background, { duration }),
   }));
 
   const animatedTextStyle = useAnimatedStyle(() => ({
-    color: withTiming(colors.text, { duration: 500 }),
+    color: withTiming(colors.text, { duration }),
   }));
-
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
       <Animated.Text style={[styles.text, animatedTextStyle]}>

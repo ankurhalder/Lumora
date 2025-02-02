@@ -92,25 +92,20 @@ export const ThemeProvider = ({ children }) => {
 
   const toggleTheme = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
-
-    opacity.value = withTiming(0, { duration: 300 });
-
-    setTheme(newTheme);
     await AsyncStorage.setItem("theme", newTheme);
+    setTheme(newTheme);
 
-    if (newTheme === "dark") {
-      backgroundColor.value = withTiming(darkTheme.background, {
-        duration: 300,
-      });
-      textColor.value = withTiming(darkTheme.text, { duration: 300 });
-    } else {
-      backgroundColor.value = withTiming(lightTheme.background, {
-        duration: 300,
-      });
-      textColor.value = withTiming(lightTheme.text, { duration: 300 });
-    }
+    const duration = 500;
 
-    opacity.value = withTiming(1, { duration: 300 });
+    backgroundColor.value = withTiming(
+      newTheme === "dark" ? darkTheme.background : lightTheme.background,
+      { duration }
+    );
+    textColor.value = withTiming(
+      newTheme === "dark" ? darkTheme.text : lightTheme.text,
+      { duration }
+    );
+    opacity.value = withTiming(1, { duration });
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
