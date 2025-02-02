@@ -27,7 +27,6 @@ const UserDetailsScreen = () => {
       setLoading(false);
       return;
     }
-    // Simulate network delay
     setTimeout(() => {
       setUserPosts(posts);
       setLoading(false);
