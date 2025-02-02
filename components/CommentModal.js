@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  PanResponder,
+  Animated,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
@@ -25,6 +27,38 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const navigation = useNavigation();
   const { background, text, secondary, borderInputField, primary } =
     useThemeColors();
+
+  const pan = useRef(new Animated.ValueXY()).current;
+
+  useEffect(() => {
+    if (visible) {
+      pan.setValue({ x: 0, y: 0 });
+    }
+  }, [visible, pan]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (e, gestureState) => {
+        pan.setValue({ x: 0, y: gestureState.dy });
+      },
+      onPanResponderRelease: (e, gestureState) => {
+        if (gestureState.dy > 100) {
+          Animated.timing(pan, {
+            toValue: { x: 0, y: 300 },
+            duration: 150,
+            useNativeDriver: true,
+          }).start(() => closeModal());
+        } else {
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
     const fetchUserImages = async () => {
@@ -73,6 +107,10 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
     navigation.navigate("ProfileDetail", { userData: user });
   };
 
+  const handleClose = () => {
+    closeModal();
+  };
+
   const renderComment = ({ item }) => (
     <View style={[styles.commentItem, { backgroundColor: secondary }]}>
       <View style={styles.userInfo}>
@@ -97,7 +135,6 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
         </Text>
       </View>
       <Text style={[styles.commentText, { color: text }]}>{item.body}</Text>
-
       <View style={styles.commentActions}>
         <TouchableOpacity style={styles.actionButton}>
           <FontAwesome name="thumbs-up" size={16} color={text} />
@@ -117,11 +154,25 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={[styles.modalContainer, { backgroundColor: background }]}>
-          <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            {
+              backgroundColor: background,
+              transform: pan.getTranslateTransform(),
+            },
+          ]}
+        >
+          <View {...panResponder.panHandlers} style={styles.dragHandle}>
+            <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
+          </View>
 
           {loading ? (
-            <SkeletonLoaderForComment count={3} />
+            <SkeletonLoaderForComment count={4} />
+          ) : commentsWithUserData.length === 0 ? (
+            <Text style={[styles.noCommentsText, { color: text }]}>
+              No Comments Yet
+            </Text>
           ) : (
             <FlatList
               data={commentsWithUserData}
@@ -150,10 +201,10 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -164,10 +215,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  dragHandle: {
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 20,
+  },
+  noCommentsText: {
+    alignSelf: "center",
+    marginVertical: 20,
+    fontSize: 16,
   },
   commentItem: {
     marginBottom: 20,
