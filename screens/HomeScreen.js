@@ -135,10 +135,20 @@ const HomeScreen = () => {
     setModalVisible(true);
   };
 
-  const handleShare = async (postId) => {
+  const handleShare = async (item) => {
     try {
-      const postUrl = `https://www.ankurhalder.in/${postId}`;
-      await Share.share({ message: `Check out this post: ${postUrl}` });
+      const postUrl = `https://www.ankurhalder.in/${item.id}`;
+      const message = `
+        Check out this post: ${postUrl}
+        Title: ${item.title}
+        ${item.body}
+        Author: ${item.user.firstName} ${item.user.lastName} (${
+        item.user.email
+      })
+        Likes: ${item.reactions.likes}, Dislikes: ${item.reactions.dislikes}
+        Tags: ${item.tags.join(", ")}
+      `;
+      await Share.share({ message });
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -157,7 +167,9 @@ const HomeScreen = () => {
         item={item}
         handleLike={handleLike}
         openComments={openComments}
-        handleShare={handleShare}
+        handleShare={() =>
+          handleShare(posts.find((post) => post.id === item.id))
+        }
         handleImagePress={handleImagePress}
       />
     ),

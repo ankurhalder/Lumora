@@ -187,6 +187,24 @@ const ProfileDetailScreen = ({ route }) => {
     setLoading(true);
     loadData();
   };
+  const handleShare = async (item) => {
+    try {
+      const postUrl = `https://www.ankurhalder.in/${item.id}`;
+      const message = `
+        Check out this post: ${postUrl}
+        Title: ${item.title}
+        ${item.body}
+        Author: ${item.user.firstName} ${item.user.lastName} (${
+        item.user.email
+      })
+        Likes: ${item.reactions.likes}, Dislikes: ${item.reactions.dislikes}
+        Tags: ${item.tags.join(", ")}
+      `;
+      await Share.share({ message });
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
 
   if (error) {
     return (
@@ -225,7 +243,7 @@ const ProfileDetailScreen = ({ route }) => {
               item={item}
               handleLike={handleLike}
               openComments={openComments}
-              handleShare={() => handleShare(item.id, item.title, item.body)}
+              handleShare={() => handleShare(item)}
               handleImagePress={handleImagePress}
             />
           )}
