@@ -8,7 +8,6 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -17,6 +16,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment";
 import { fetchUserById } from "../functions/fetchUserById";
 import { useThemeColors } from "../theme/ThemeProvider";
+import SkeletonLoaderForComment from "./SkeletonLoaderForComment";
 
 const CommentModal = ({ visible, comments, closeModal, postId }) => {
   const [newComment, setNewComment] = useState("");
@@ -120,7 +120,7 @@ const CommentModal = ({ visible, comments, closeModal, postId }) => {
           <Text style={[styles.modalTitle, { color: text }]}>Comments</Text>
 
           {loading ? (
-            <ActivityIndicator size="large" color={primary} />
+            <SkeletonLoaderForComment />
           ) : (
             <FlatList
               data={commentsWithUserData}
