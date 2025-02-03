@@ -2,6 +2,10 @@
   "name": "lumora",
   "version": "1.0.0",
   "main": "index.js",
+  "author": {
+    "name": "Ankur Halder",
+    "email": "ankur.halder12345@gmail.com"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
