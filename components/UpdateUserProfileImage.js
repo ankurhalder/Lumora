@@ -7,8 +7,10 @@ import {
   StyleSheet,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const UpdateUserProfileImage = ({ updateProfileImage }) => {
+  const colors = useThemeColors();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleImageUpdate = () => {
@@ -75,9 +77,11 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
       style={styles.buttonContainer}
     >
       {isLoading ? (
-        <ActivityIndicator size="small" color="#007bff" />
+        <ActivityIndicator size="small" color={colors.primary} />
       ) : (
-        <Text style={styles.updateText}>Update Profile Image</Text>
+        <Text style={[styles.updateText, { color: colors.primary }]}>
+          Update Profile Image
+        </Text>
       )}
     </TouchableOpacity>
   );
@@ -86,7 +90,6 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
 const styles = StyleSheet.create({
   updateText: {
     fontSize: 14,
-    color: "#007bff",
     marginLeft: 10,
     textDecorationLine: "underline",
   },
