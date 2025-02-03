@@ -13,8 +13,12 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const NotificationsScreen = () => {
+  const themeColors = useThemeColors();
+  const styles = getStyles(themeColors);
+
   const [notifications, setNotifications] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +38,9 @@ const NotificationsScreen = () => {
         );
         setNotifications(sorted);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error loading notifications:", error);
+    }
   };
 
   useEffect(() => {
@@ -183,6 +189,7 @@ const NotificationsScreen = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search notifications..."
+          placeholderTextColor={themeColors.inactiveTab}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -228,6 +235,7 @@ const NotificationsScreen = () => {
             <TextInput
               style={styles.modalInput}
               placeholder="Enter your notification message"
+              placeholderTextColor={themeColors.inactiveTab}
               value={newMessage}
               onChangeText={setNewMessage}
             />
@@ -252,114 +260,148 @@ const NotificationsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 10 },
-  header: { flexDirection: "row", alignItems: "center", marginVertical: 10 },
-  searchInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-  },
-  clearButton: {
-    marginLeft: 10,
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 20,
-  },
-  markAllContainer: {
-    alignItems: "flex-end",
-    marginBottom: 5,
-  },
-  markAllButton: {
-    backgroundColor: "#28a745",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  markAllText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  notificationItem: {
-    padding: 15,
-    marginVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  unreadNotification: { backgroundColor: "#e6f2ff" },
-  readNotification: { backgroundColor: "#f9f9f9" },
-  messageText: { fontSize: 14 },
-  readText: { color: "gray" },
-  timeText: { fontSize: 12, color: "gray", marginTop: 5 },
-  sectionHeader: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 15,
-    color: "#333",
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 50,
-    color: "gray",
-    fontSize: 16,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#28a745",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 5,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
-  modalInput: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  modalButton: {
-    flex: 1,
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 10,
-    marginHorizontal: 5,
-    alignItems: "center",
-  },
-  buttonText: { color: "#fff", fontWeight: "bold" },
-});
+const getStyles = (themeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: themeColors.background,
+      paddingHorizontal: 10,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginVertical: 10,
+    },
+    searchInput: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: themeColors.borderInputField,
+      borderRadius: 20,
+      paddingHorizontal: 15,
+      paddingVertical: 8,
+      color: themeColors.text,
+      backgroundColor: themeColors.modalBackground,
+    },
+    clearButton: {
+      marginLeft: 10,
+      backgroundColor: themeColors.primary,
+      padding: 10,
+      borderRadius: 20,
+    },
+    markAllContainer: {
+      alignItems: "flex-end",
+      marginBottom: 5,
+    },
+    markAllButton: {
+      backgroundColor: themeColors.success,
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 5,
+    },
+    markAllText: {
+      color: "#fff",
+      fontSize: 14,
+    },
+    notificationItem: {
+      padding: 15,
+      marginVertical: 5,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: themeColors.cardOutline,
+    },
+    unreadNotification: {
+      backgroundColor: themeColors.accentTeal + "20",
+    },
+    readNotification: {
+      backgroundColor: themeColors.modalBackground,
+    },
+    messageText: {
+      fontSize: 14,
+      color: themeColors.text,
+    },
+    readText: {
+      color: themeColors.inactiveTab,
+    },
+    timeText: {
+      fontSize: 12,
+      color: themeColors.timestamp,
+      marginTop: 5,
+    },
+    sectionHeader: {
+      fontSize: 16,
+      fontWeight: "bold",
+      marginTop: 15,
+      color: themeColors.text,
+    },
+    emptyText: {
+      textAlign: "center",
+      marginTop: 50,
+      color: themeColors.inactiveTab,
+      fontSize: 16,
+    },
+    addButton: {
+      position: "absolute",
+      bottom: 20,
+      right: 20,
+      backgroundColor: themeColors.success,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      alignItems: "center",
+      justifyContent: "center",
+      elevation: 5,
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: "center",
+      backgroundColor: themeColors.overlay,
+    },
+    modalContent: {
+      margin: 20,
+      backgroundColor: themeColors.modalBackground,
+      borderRadius: 20,
+      padding: 20,
+      alignItems: "center",
+      shadowColor: themeColors.shadowDark,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      marginBottom: 15,
+      color: themeColors.text,
+    },
+    modalInput: {
+      width: "100%",
+      borderWidth: 1,
+      borderColor: themeColors.borderInputField,
+      borderRadius: 10,
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      marginBottom: 20,
+      color: themeColors.text,
+      backgroundColor: themeColors.background,
+    },
+    modalButtons: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+    },
+    modalButton: {
+      flex: 1,
+      backgroundColor: themeColors.primary,
+      padding: 10,
+      borderRadius: 10,
+      marginHorizontal: 5,
+      alignItems: "center",
+    },
+    buttonText: {
+      color: "#fff",
+      fontWeight: "bold",
+    },
+  });
 
 export default NotificationsScreen;
