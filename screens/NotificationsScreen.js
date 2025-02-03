@@ -63,6 +63,18 @@ const NotificationsScreen = () => {
     );
   }, []);
 
+  const markAllAsRead = async () => {
+    const updatedNotifications = notifications.map((notif) => ({
+      ...notif,
+      read: true,
+    }));
+    setNotifications(updatedNotifications);
+    await AsyncStorage.setItem(
+      "notifications",
+      JSON.stringify(updatedNotifications)
+    );
+  };
+
   const toggleReadStatus = async (id) => {
     const updatedNotifications = notifications.map((notif) =>
       notif.id === id ? { ...notif, read: !notif.read } : notif
@@ -181,6 +193,11 @@ const NotificationsScreen = () => {
           <Icon name="delete-sweep" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
+      <View style={styles.markAllContainer}>
+        <TouchableOpacity style={styles.markAllButton} onPress={markAllAsRead}>
+          <Text style={styles.markAllText}>Mark All as Read</Text>
+        </TouchableOpacity>
+      </View>
 
       <SectionList
         sections={groupNotificationsByDate()}
@@ -251,6 +268,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 20,
+  },
+  markAllContainer: {
+    alignItems: "flex-end",
+    marginBottom: 5,
+  },
+  markAllButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  markAllText: {
+    color: "#fff",
+    fontSize: 14,
   },
   notificationItem: {
     padding: 15,

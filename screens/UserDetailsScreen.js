@@ -9,6 +9,7 @@ import {
   Alert,
   Share,
   Animated,
+  Text,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +24,9 @@ import ProfileHeader from "../components/ProfileHeader";
 import UserPostItem from "../components/UserPostItem";
 
 const PAGE_SIZE = 5;
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
 const UserDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [postsError, setPostsError] = useState(false);
@@ -32,9 +36,11 @@ const UserDetailsScreen = () => {
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const navigation = useNavigation();
   const flatListRef = useRef(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const loadMoreTimeout = useRef(null);
 
   const fetchPosts = async () => {
     try {
@@ -52,7 +58,35 @@ const UserDetailsScreen = () => {
 
   useEffect(() => {
     fetchPosts();
+    loadBookmarkedPosts();
   }, []);
+
+  const loadBookmarkedPosts = async () => {
+    try {
+      const storedBookmarks = await AsyncStorage.getItem("bookmarkedPosts");
+      if (storedBookmarks) setBookmarkedPosts(JSON.parse(storedBookmarks));
+    } catch (error) {}
+  };
+
+  const saveBookmarkedPosts = async (newBookmarks) => {
+    try {
+      await AsyncStorage.setItem(
+        "bookmarkedPosts",
+        JSON.stringify(newBookmarks)
+      );
+    } catch (error) {}
+  };
+
+  const toggleBookmark = (postId) => {
+    let updatedBookmarks;
+    if (bookmarkedPosts.includes(postId)) {
+      updatedBookmarks = bookmarkedPosts.filter((id) => id !== postId);
+    } else {
+      updatedBookmarks = [...bookmarkedPosts, postId];
+    }
+    setBookmarkedPosts(updatedBookmarks);
+    saveBookmarkedPosts(updatedBookmarks);
+  };
 
   const loadProfileImage = async () => {
     try {
@@ -150,10 +184,12 @@ const UserDetailsScreen = () => {
 
   const loadMorePosts = () => {
     if (visiblePosts.length < userPosts.length && !loadingMore) {
+      if (loadMoreTimeout.current) return;
       setLoadingMore(true);
-      setTimeout(() => {
+      loadMoreTimeout.current = setTimeout(() => {
         setPage((prev) => prev + 1);
         setLoadingMore(false);
+        loadMoreTimeout.current = null;
       }, 500);
     }
   };
@@ -190,7 +226,7 @@ const UserDetailsScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <FlatList
+      <AnimatedFlatList
         ref={flatListRef}
         data={visiblePosts}
         keyExtractor={(item) => item.id.toString()}
@@ -201,14 +237,29 @@ const UserDetailsScreen = () => {
         onEndReachedThreshold={0.5}
         ListHeaderComponent={
           <>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={navigation.goBack}
-              accessibilityLabel="Go Back"
-              testID="back-button"
-            >
-              <Icon name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={navigation.goBack}
+                accessibilityLabel="Go Back"
+                testID="back-button"
+              >
+                <Icon name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.editProfileButton}
+                onPress={() =>
+                  Alert.alert(
+                    "Edit Profile",
+                    "This will navigate to an edit profile screen."
+                  )
+                }
+                accessibilityLabel="Edit Profile"
+                testID="edit-profile-button"
+              >
+                <Icon name="edit" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
             <ProfileHeader
               user={userData}
               profileImage={profileImage}
@@ -216,15 +267,30 @@ const UserDetailsScreen = () => {
             />
           </>
         }
-        renderItem={({ item }) => (
-          <UserPostItem
-            item={item}
-            onLike={handleLike}
-            onComment={handleComment}
-            onShare={handleShare}
-          />
+        renderItem={({ item, index }) => (
+          <Animated.View
+            style={{
+              opacity: scrollY.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+                extrapolate: "clamp",
+              }),
+            }}
+          >
+            <UserPostItem
+              item={item}
+              onLike={handleLike}
+              onComment={handleComment}
+              onShare={handleShare}
+              onBookmark={toggleBookmark}
+              bookmarked={bookmarkedPosts.includes(item.id)}
+            />
+          </Animated.View>
         )}
-        onScroll={handleScroll}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true, listener: handleScroll }
+        )}
         scrollEventThrottle={16}
         contentContainerStyle={styles.container}
         ListFooterComponent={() =>
@@ -252,7 +318,13 @@ const UserDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: { padding: 15, backgroundColor: "#fff" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  headerButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
   backButton: { padding: 10 },
+  editProfileButton: { padding: 10 },
   scrollToTop: {
     position: "absolute",
     bottom: 20,

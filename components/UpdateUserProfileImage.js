@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  Alert,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 const UpdateUserProfileImage = ({ updateProfileImage }) => {
   const [isLoading, setIsLoading] = useState(false);
+
   const handleImageUpdate = () => {
     Alert.alert("Update Profile Picture", "Choose an option", [
       { text: "Camera", onPress: () => pickImage("camera") },
@@ -11,6 +18,7 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
       { text: "Cancel", style: "cancel" },
     ]);
   };
+
   const pickImage = async (mode) => {
     try {
       setIsLoading(true);
@@ -57,12 +65,14 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
       setIsLoading(false);
     }
   };
+
   return (
     <TouchableOpacity
       onPress={handleImageUpdate}
       disabled={isLoading}
       accessibilityLabel="Update Profile Image"
       testID="update-profile-image"
+      style={styles.buttonContainer}
     >
       {isLoading ? (
         <ActivityIndicator size="small" color="#007bff" />
@@ -73,13 +83,16 @@ const UpdateUserProfileImage = ({ updateProfileImage }) => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   updateText: {
     fontSize: 14,
     color: "#007bff",
-    marginBottom: 10,
+    marginLeft: 10,
     textDecorationLine: "underline",
   },
-};
+  buttonContainer: {
+    justifyContent: "center",
+  },
+});
 
 export default UpdateUserProfileImage;

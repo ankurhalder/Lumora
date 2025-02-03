@@ -1,13 +1,41 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import * as Haptics from "expo-haptics";
 
-const UserPostItem = ({ item, onLike, onComment, onShare }) => {
+const UserPostItem = ({
+  item,
+  onLike,
+  onComment,
+  onShare,
+  onBookmark,
+  bookmarked,
+}) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
   const handleLikePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.2,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
     Haptics.selectionAsync();
     onLike(item.id);
   };
+
   return (
     <View style={styles.postContainer}>
       <Text style={styles.postTitle}>{item.title}</Text>
@@ -19,7 +47,9 @@ const UserPostItem = ({ item, onLike, onComment, onShare }) => {
           accessibilityLabel="Like post"
           testID={`like-button-${item.id}`}
         >
-          <Icon name="favorite" size={18} color="red" />
+          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <Icon name="favorite" size={18} color="red" />
+          </Animated.View>
           <Text style={styles.actionText}>{item.reactions.likes}</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -37,6 +67,18 @@ const UserPostItem = ({ item, onLike, onComment, onShare }) => {
           testID={`share-button-${item.id}`}
         >
           <Icon name="share" size={18} color="#007bff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => onBookmark(item.id)}
+          accessibilityLabel="Bookmark post"
+          testID={`bookmark-button-${item.id}`}
+        >
+          <Icon
+            name={bookmarked ? "bookmark" : "bookmark-border"}
+            size={18}
+            color="#007bff"
+          />
         </TouchableOpacity>
       </View>
     </View>

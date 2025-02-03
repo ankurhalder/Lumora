@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import UpdateUserProfileImage from "./UpdateUserProfileImage";
 
 const DEFAULT_COVER = "https://www.ankurhalder.in/apple-icon.png";
 const DEFAULT_PROFILE = "https://www.ankurhalder.in/apple-icon.png";
+
 const ProfileHeader = ({ user, profileImage, updateProfileImage }) => {
   const [coverError, setCoverError] = useState(false);
   const [profileError, setProfileError] = useState(false);
@@ -18,19 +19,21 @@ const ProfileHeader = ({ user, profileImage, updateProfileImage }) => {
         accessibilityLabel="Cover image"
         onError={() => setCoverError(true)}
       />
-      <Image
-        source={{
-          uri:
-            !profileError && profileImage
-              ? profileImage
-              : user.image || DEFAULT_PROFILE,
-        }}
-        style={styles.profileImage}
-        accessible={true}
-        accessibilityLabel="Profile image"
-        onError={() => setProfileError(true)}
-      />
-      <UpdateUserProfileImage updateProfileImage={updateProfileImage} />
+      <View style={styles.profileImageContainer}>
+        <Image
+          source={{
+            uri:
+              !profileError && profileImage
+                ? profileImage
+                : user.image || DEFAULT_PROFILE,
+          }}
+          style={styles.profileImage}
+          accessible={true}
+          accessibilityLabel="Profile image"
+          onError={() => setProfileError(true)}
+        />
+        <UpdateUserProfileImage updateProfileImage={updateProfileImage} />
+      </View>
       <Text style={styles.name}>{`${user.firstName} ${user.lastName}`}</Text>
       <Text style={styles.username}>@{user.username}</Text>
       <View style={styles.infoContainer}>
@@ -60,6 +63,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   coverImage: { width: "100%", height: 100, marginBottom: -50 },
+  profileImageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   profileImage: {
     width: 100,
     height: 100,
@@ -68,7 +75,7 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     marginBottom: 10,
   },
-  name: { fontSize: 20, fontWeight: "bold", color: "#000" },
+  name: { fontSize: 20, fontWeight: "bold", color: "#000", marginTop: 10 },
   username: { fontSize: 16, color: "gray", marginBottom: 10 },
   infoContainer: { alignItems: "center" },
   infoText: { fontSize: 14, marginBottom: 5, color: "#333" },
