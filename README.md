@@ -1,22 +1,22 @@
 # Lumora
 
-Lumora is a React Native post feed app that aggregates posts, users, and comments from [https://dummyjson.com](https://dummyjson.com/) The app provides an engaging user experience with features such as infinite scrolling, user profiles, notifications, and customizable themes.
+Lumora is a React Native post feed app that aggregates posts, users, and comments from [https://dummyjson.com](https://dummyjson.com/). The app provides an engaging user experience with features such as infinite scrolling, user profiles, notifications, and customizable themes.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
+- [Download](#download)
 - [Contact](#contact)
 
 ## Overview
 
-Lumora is designed to provide users with a seamless and interactive post feed experience. The app fetches data from [https://dummyjson.com](https://dummyjson.com/) and uses it to display posts, user profiles, and comments. In addition to the feed, Lumora includes several interactive features such as:
+Lumora is designed to provide users with a seamless and interactive post feed experience. The app fetches data from [https://dummyjson.com](https://dummyjson.com/) and uses it to display posts, user profiles, and comments. In addition to the feed, Lumora includes several interactive features such as:
 
 - **Infinite Scrolling:** Automatically loads new posts as you scroll.
 - **"Go to Top" Button:** Quickly navigate back to the top of the feed.
@@ -48,14 +48,7 @@ Lumora is designed to provide users with a seamless and interactive post feed ex
   - Toggle between Dark Mode and Light Mode.
 
 - **Data Integration:**
-
-  - Fetches posts, users, and comments from [https://dummyjson.com](https://dummyjson.com/) and links them together throughout the app.
-
-## Demo
-
-_Add screenshots or a short demo video here to showcase the app in action._
-
-Example:
+  - Fetches posts, users, and comments from [https://dummyjson.com](https://dummyjson.com/) and links them together throughout the app.
 
 ## Installation
 
@@ -110,8 +103,11 @@ lumora
 ├── navigation/
 ├── assets/
 ├── styles/
+├── theme/
+├── functions/
+├── index.js
+├── app.json
 ├── package.json
-
 ```
 
 ## Contributing
@@ -125,8 +121,6 @@ Contributions are welcome! Follow these steps to contribute:
    ```bash
    git checkout -b feature/your-feature
    ```
-
-````
 
 3. Make your changes and commit them:
 
@@ -146,11 +140,14 @@ Please ensure you update tests as needed.
 
 ## License
 
-Distributed under the MIT License. See LICENSE for more details.
+Distributed under the GNU AFFERO GENERAL PUBLIC LICENSE License. See [LICENSE](LICENSE) for more details.
+
+## Download
+
+Download the latest version of **Lumora.apk**: [Click here to download](Lumora.apk)
 
 ## Contact
 
 Ankur Halder – [ankur.halder12345@gmail.com](mailto:ankur.halder12345@gmail.com)
 
 Project Link: [https://github.com/ankurhalder/lumora](https://github.com/ankurhalder/lumora)
-````
