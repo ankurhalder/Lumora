@@ -23,15 +23,14 @@ import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-
 import userData from "../data/userData";
 import posts from "../data/posts";
 import ProfileHeader from "../components/ProfileHeader";
 import UserPostItem from "../components/UserPostItem";
+import { useThemeColors } from "../theme/ThemeProvider";
 
 const PAGE_SIZE = 5;
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
 const debounce = (func, delay) => {
   let timeout;
   return (...args) => {
@@ -41,6 +40,7 @@ const debounce = (func, delay) => {
 };
 
 const UserDetailsScreen = () => {
+  const colors = useThemeColors();
   const [loading, setLoading] = useState(true);
   const [postsError, setPostsError] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
@@ -78,9 +78,7 @@ const UserDetailsScreen = () => {
     try {
       const storedBookmarks = await AsyncStorage.getItem("bookmarkedPosts");
       if (storedBookmarks) setBookmarkedPosts(JSON.parse(storedBookmarks));
-    } catch (error) {
-      console.error("Error loading bookmarks", error);
-    }
+    } catch (error) {}
   };
 
   const saveBookmarkedPosts = async (newBookmarks) => {
@@ -233,7 +231,6 @@ const UserDetailsScreen = () => {
     }
   };
 
-  // Memoize header component to avoid unnecessary re-renders
   const headerComponent = useMemo(
     () => (
       <>
@@ -244,7 +241,7 @@ const UserDetailsScreen = () => {
             accessibilityLabel="Go Back"
             testID="back-button"
           >
-            <Icon name="arrow-back" size={24} color="black" />
+            <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.editProfileButton}
@@ -257,7 +254,7 @@ const UserDetailsScreen = () => {
             accessibilityLabel="Edit Profile"
             testID="edit-profile-button"
           >
-            <Icon name="edit" size={24} color="black" />
+            <Icon name="edit" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
         <ProfileHeader
@@ -267,36 +264,50 @@ const UserDetailsScreen = () => {
         />
       </>
     ),
-    [navigation, profileImage, updateProfileImage]
+    [navigation, profileImage, updateProfileImage, colors.text]
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#007bff" />
+      <SafeAreaView
+        style={[styles.center, { backgroundColor: colors.background }]}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
 
   if (postsError) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Text style={styles.errorText}>Failed to load posts.</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchPosts}>
-          <Text style={styles.retryText}>Retry</Text>
+      <SafeAreaView
+        style={[styles.center, { backgroundColor: colors.background }]}
+      >
+        <Text style={[styles.errorText, { color: colors.error || "red" }]}>
+          Failed to load posts.
+        </Text>
+        <TouchableOpacity
+          style={[styles.retryButton, { backgroundColor: colors.primary }]}
+          onPress={fetchPosts}
+        >
+          <Text style={[styles.retryText, { color: colors.text }]}>Retry</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <AnimatedFlatList
         ref={flatListRef}
         data={visiblePosts}
         keyExtractor={(item) => item.id.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
         }
         onEndReached={loadMorePosts}
         onEndReachedThreshold={0.5}
@@ -326,23 +337,26 @@ const UserDetailsScreen = () => {
           { useNativeDriver: true, listener: handleScroll }
         )}
         scrollEventThrottle={16}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
         ListFooterComponent={() =>
           loadingMore ? (
             <View style={styles.loadMoreContainer}>
-              <ActivityIndicator size="small" color="#007bff" />
+              <ActivityIndicator size="small" color={colors.primary} />
             </View>
           ) : null
         }
       />
       {showScrollToTop && (
         <TouchableOpacity
-          style={styles.scrollToTop}
+          style={[styles.scrollToTop, { backgroundColor: colors.primary }]}
           onPress={scrollToTop}
           accessibilityLabel="Scroll to top"
           testID="scroll-to-top"
         >
-          <Icon name="arrow-upward" size={24} color="#fff" />
+          <Icon name="arrow-upward" size={24} color={colors.text} />
         </TouchableOpacity>
       )}
     </SafeAreaView>
@@ -350,7 +364,7 @@ const UserDetailsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 15, backgroundColor: "#fff" },
+  container: { padding: 15 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   headerButtons: {
     flexDirection: "row",
@@ -363,20 +377,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#007bff",
     borderRadius: 30,
     padding: 10,
     elevation: 5,
   },
   loadMoreContainer: { padding: 10, alignItems: "center" },
-  errorText: { fontSize: 16, color: "red", marginBottom: 10 },
-  retryButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  retryText: { color: "#fff", fontSize: 16 },
+  errorText: { fontSize: 16, marginBottom: 10 },
+  retryButton: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
+  retryText: { fontSize: 16 },
 });
 
 export default UserDetailsScreen;
