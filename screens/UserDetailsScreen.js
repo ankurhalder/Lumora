@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import {
   View,
   ActivityIndicator,
@@ -24,8 +30,15 @@ import ProfileHeader from "../components/ProfileHeader";
 import UserPostItem from "../components/UserPostItem";
 
 const PAGE_SIZE = 5;
-
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
+const debounce = (func, delay) => {
+  let timeout;
+  return (...args) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), delay);
+  };
+};
 
 const UserDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
@@ -65,7 +78,9 @@ const UserDetailsScreen = () => {
     try {
       const storedBookmarks = await AsyncStorage.getItem("bookmarkedPosts");
       if (storedBookmarks) setBookmarkedPosts(JSON.parse(storedBookmarks));
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error loading bookmarks", error);
+    }
   };
 
   const saveBookmarkedPosts = async (newBookmarks) => {
@@ -74,16 +89,15 @@ const UserDetailsScreen = () => {
         "bookmarkedPosts",
         JSON.stringify(newBookmarks)
       );
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error saving bookmarks", error);
+    }
   };
 
   const toggleBookmark = (postId) => {
-    let updatedBookmarks;
-    if (bookmarkedPosts.includes(postId)) {
-      updatedBookmarks = bookmarkedPosts.filter((id) => id !== postId);
-    } else {
-      updatedBookmarks = [...bookmarkedPosts, postId];
-    }
+    const updatedBookmarks = bookmarkedPosts.includes(postId)
+      ? bookmarkedPosts.filter((id) => id !== postId)
+      : [...bookmarkedPosts, postId];
     setBookmarkedPosts(updatedBookmarks);
     saveBookmarkedPosts(updatedBookmarks);
   };
@@ -92,7 +106,9 @@ const UserDetailsScreen = () => {
     try {
       const storedImage = await AsyncStorage.getItem("profileImage");
       if (storedImage) setProfileImage(storedImage);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error loading profile image", error);
+    }
   };
 
   useEffect(() => {
@@ -105,7 +121,10 @@ const UserDetailsScreen = () => {
     }, [])
   );
 
-  const visiblePosts = userPosts.slice(0, page * PAGE_SIZE);
+  const visiblePosts = useMemo(
+    () => userPosts.slice(0, page * PAGE_SIZE),
+    [userPosts, page]
+  );
 
   const storeNotificationRecord = async (notificationRecord) => {
     try {
@@ -116,7 +135,9 @@ const UserDetailsScreen = () => {
         "notifications",
         JSON.stringify(notificationsArray)
       );
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error storing notification record", error);
+    }
   };
 
   const updateProfileImage = async (imageUri) => {
@@ -194,9 +215,16 @@ const UserDetailsScreen = () => {
     }
   };
 
+  const debouncedHandleScroll = useCallback(
+    debounce((offsetY) => {
+      setShowScrollToTop(offsetY > 150);
+    }, 100),
+    []
+  );
+
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    setShowScrollToTop(offsetY > 150);
+    debouncedHandleScroll(offsetY);
   };
 
   const scrollToTop = () => {
@@ -204,6 +232,43 @@ const UserDetailsScreen = () => {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   };
+
+  // Memoize header component to avoid unnecessary re-renders
+  const headerComponent = useMemo(
+    () => (
+      <>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={navigation.goBack}
+            accessibilityLabel="Go Back"
+            testID="back-button"
+          >
+            <Icon name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editProfileButton}
+            onPress={() =>
+              Alert.alert(
+                "Edit Profile",
+                "This will navigate to an edit profile screen."
+              )
+            }
+            accessibilityLabel="Edit Profile"
+            testID="edit-profile-button"
+          >
+            <Icon name="edit" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+        <ProfileHeader
+          user={userData}
+          profileImage={profileImage}
+          updateProfileImage={updateProfileImage}
+        />
+      </>
+    ),
+    [navigation, profileImage, updateProfileImage]
+  );
 
   if (loading) {
     return (
@@ -235,39 +300,8 @@ const UserDetailsScreen = () => {
         }
         onEndReached={loadMorePosts}
         onEndReachedThreshold={0.5}
-        ListHeaderComponent={
-          <>
-            <View style={styles.headerButtons}>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={navigation.goBack}
-                accessibilityLabel="Go Back"
-                testID="back-button"
-              >
-                <Icon name="arrow-back" size={24} color="black" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.editProfileButton}
-                onPress={() =>
-                  Alert.alert(
-                    "Edit Profile",
-                    "This will navigate to an edit profile screen."
-                  )
-                }
-                accessibilityLabel="Edit Profile"
-                testID="edit-profile-button"
-              >
-                <Icon name="edit" size={24} color="black" />
-              </TouchableOpacity>
-            </View>
-            <ProfileHeader
-              user={userData}
-              profileImage={profileImage}
-              updateProfileImage={updateProfileImage}
-            />
-          </>
-        }
-        renderItem={({ item, index }) => (
+        ListHeaderComponent={headerComponent}
+        renderItem={({ item }) => (
           <Animated.View
             style={{
               opacity: scrollY.interpolate({
