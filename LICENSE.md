@@ -1,7 +1,7 @@
 # GNU AFFERO GENERAL PUBLIC LICENSE
 
 Version 3, 19 November 2007  
-Copyright (C) 2024 Ankur Halder [ankur.halder12345@gmail.com](mailto:ankur.halder12345@gmail.com)
+Copyright (C) 2025 Ankur Halder [ankur.halder12345@gmail.com](mailto:ankur.halder12345@gmail.com)
 
 [GitHub Link](https://github.com/ankurhalder)  
 [Project Link](https://www.ankurhalder.in)
