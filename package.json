@@ -30,7 +30,7 @@
     "expo-notifications": "~0.29.13",
     "expo-status-bar": "~2.0.1",
     "glob": "^9.3.5",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lottie-react-native": "7.1.0",
     "lru-cache": "^11.0.2",
     "moment": "^2.30.1",
